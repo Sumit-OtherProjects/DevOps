@@ -1,4 +1,6 @@
-# Git Hooks Screenshot
+# Learning Git Screenshot
+
+![Learning Git Screenshot](/learning-git/with_extra_credit.png?raw=true "Learning Git Tutorial Sceenshot")
 
 
 # Concepts
