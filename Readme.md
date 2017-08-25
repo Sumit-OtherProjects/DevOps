@@ -15,6 +15,10 @@ Continuous Deployement takes the automation one step further and deploys the rel
 THe difference between Cont. Delivery and Deployement is that in case od delivery, the release is not deployed to production but it is ready for deployement. Deployement is done manually. In case of Cont. deployement, it automatically deploys as well.
 The both differ from Cont. Integration because in Cont. Integration, the changes are tested only for build/test stage. They are not packaged or deployed.
 
+## Difference between DevOps and NoOps
+NoOps is a theory in which all IT operations are eliminated. It extends from DevOps. DevOps tried to minimize all IT related operations by automating them and minimizing any manual intervention requirement. It tries to reduce the requirement of dedicated IT teams by automating the integration and deployement of code changes. It sort of blurs the line between IT and Dev Teams.
+NoOps takes it one step further such that no in-house IT team is required at all. In NoOps, all IT related operations would be completely automated. 
+
 ## Each feature is an experiment
 
 The principle of "each feature is an experiment" means that in this age of continuous deployement, every feature/change being developed is an experiment. Based on customer response, it may be removed. Earlier (before continuous deployement), any new feature that was added was decided based on tradeoffs between multiple feature choices. This did not take into account the customer's preferences or feedback for that feature. 
