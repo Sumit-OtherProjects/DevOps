@@ -6,6 +6,8 @@
 
 [![Git Hooks Demo Screencast](https://img.youtube.com/vi/UjcxY7I_Xa4/0.jpg)](https://www.youtube.com/watch?v=UjcxY7I_Xa4)
 
+https://www.youtube.com/watch?v=UjcxY7I_Xa4
+
 # Concepts
 
 ## Continous Integeration, Continous Delivery and Continuous Deployement
