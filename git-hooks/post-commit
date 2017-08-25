@@ -1,7 +1,7 @@
 #!/bin/sh
 #
-# An example hook script to prepare a packed repository for use over
-# dumb transports.
+# An hook script to run after each commit.
+# This will open a web browser "Google Chrome" and open "http://www.google.com"
 #
 
 /usr/bin/open -a "/Applications/Google Chrome.app" 'http://www.google.com'
