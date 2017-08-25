@@ -2,6 +2,9 @@
 
 ![Learning Git Screenshot](/learning-git/with_extra_credit.png?raw=true "Learning Git Tutorial Sceenshot")
 
+# Git Hooks Screencast
+
+[![Git Hooks Demo Screencast](https://img.youtube.com/vi/UjcxY7I_Xa4/0.jpg)](https://www.youtube.com/watch?v=UjcxY7I_Xa4)
 
 # Concepts
 
