@@ -5,6 +5,8 @@
   pre_tasks:
     - name: install python 2
       raw: test -e /usr/bin/python || (sudo apt -y update && sudo apt install -y python-minimal)
+      changed_when: False
+    - setup:
 
   vars: 
     packages:
@@ -14,21 +16,7 @@
       - wget
       - python-pip
 
-  tasks: 
-    - name: Gathering facts
-      setup:
-
-
-    - name: Updating packages cache
-      apt:
-        update_cache: yes
-      become: yes
-
-    # - name: Updating Ubuntu Server
-    #   apt:
-    #     upgrade: yes
-    #   become: yes
-
+  tasks:
     - name: Installing Pre-requisites packages
       apt: "pkg={{ item }} state=present update_cache=yes"
       become: yes
@@ -36,8 +24,15 @@
 
     - name: Installing python packages requirements
       pip:
-        name: pexpect
+        name: "{{ item }}"
         state: present
+        extra_args: "--upgrade"
+      with_items:
+        - pip
+        - pexpect
+      become: yes
+      become_flags: "-E"
+      register: pip_output
 
     - name: Adding vbox repository to sources.list
       lineinfile:
