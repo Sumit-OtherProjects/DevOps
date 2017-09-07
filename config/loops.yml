@@ -110,7 +110,7 @@
 
     - name: Check if phpVirtualBox is already installed
       stat:
-        path: /var/www/html/vboxinit
+        path: /var/www/html/phpvirtualbox
       register: phpbox_installed
 
     - name: Downloading phpVirtualBox
@@ -133,6 +133,7 @@
       synchronize:
         src: '/tmp/phpvirtualbox-5.0-5/'
         dest: '/var/www/html/phpvirtualbox/'
+        recursive: yes
         perms: yes
       become: yes
       delegate_to: "{{ inventory_hostname }}"
@@ -146,6 +147,7 @@
         group: root
         mode: 0644
       become: yes
+      register: php_config_changed
 
     - name: Configure VitualBox User
       copy:
@@ -154,22 +156,27 @@
         owner: root
         group: root
         mode: 0644    
-      become: yes  
+      become: yes
+      register: vbox_config_changed
 
     - name: Restart vboxweb-service
       systemd: 
         state: restarted
         name: vboxweb-service
       become: yes
+      when: php_config_changed.changed == True or vbox_config_changed.changed == True
 
     - name: Restart vboxdrv
       systemd: 
         state: restarted
         name: vboxdrv
       become: yes
+      when: php_config_changed.changed == True or vbox_config_changed.changed == True
 
     - name: Restart apache2
       systemd: 
         state: restarted
         name: apache2
       become: yes
+      when: php_config_changed.changed == True or vbox_config_changed.changed == True
+
