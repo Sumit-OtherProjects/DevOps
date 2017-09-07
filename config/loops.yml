@@ -120,14 +120,56 @@
         force: no
       when: phpbox_installed.stat.exists == False
 
-    - name: Installing phpVirtualBox
+    - name: Unzip phpVirtualBox
       unarchive:
         src: /tmp/phpvirtualbox-5.0-5.zip
-        dest: /var/www/html/
+        dest: /tmp/
         mode: 0777
         remote_src: yes
       become: yes
       when: phpbox_installed.stat.exists == False
 
+    - name: Installing phpVirtualBox
+      synchronize:
+        src: '/tmp/phpvirtualbox-5.0-5/'
+        dest: '/var/www/html/phpvirtualbox/'
+        perms: yes
+      become: yes
+      delegate_to: "{{ inventory_hostname }}"
+      when: phpbox_installed.stat.exists == False
 
+    - name: Configure phpVirtualBox
+      copy:
+        src: templates/config.php.template
+        dest: /var/www/html/phpvirtualbox/config.php
+        owner: root
+        group: root
+        mode: 0644
+      become: yes
 
+    - name: Configure VitualBox User
+      copy:
+        src: templates/virtualbox.template
+        dest: /etc/default/virtualbox
+        owner: root
+        group: root
+        mode: 0644    
+      become: yes  
+
+    - name: Restart vboxweb-service
+      systemd: 
+        state: restarted
+        name: vboxweb-service
+      become: yes
+
+    - name: Restart vboxdrv
+      systemd: 
+        state: restarted
+        name: vboxdrv
+      become: yes
+
+    - name: Restart apache2
+      systemd: 
+        state: restarted
+        name: apache2
+      become: yes
