@@ -135,22 +135,16 @@
       when: phpbox_installed.stat.exists == False
 
     - name: Configure phpVirtualBox
-      copy:
-        src: templates/config.php.template
+      template:
+        src: config.php.template
         dest: /var/www/html/phpvirtualbox/config.php
-        owner: root
-        group: root
-        mode: 0644
       become: yes
       register: php_config_changed
 
     - name: Configure VitualBox User
-      copy:
-        src: templates/virtualbox.template
+      template:
+        src: virtualbox.template
         dest: /etc/default/virtualbox
-        owner: root
-        group: root
-        mode: 0644    
       become: yes
       register: vbox_config_changed
 
@@ -175,3 +169,7 @@
       become: yes
       when: php_config_changed.changed == True or vbox_config_changed.changed == True
 
+    - name: Installing vagrant
+      apt: "pkg=vagrant state=present update_cache=yes"
+      become: yes
+      

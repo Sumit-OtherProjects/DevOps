@@ -4,7 +4,7 @@
   tasks:
     - name: Create VMs Home directory if needed
       file:
-        path: /home/ubuntu/VagrantVMs/
+        path: /home/{{ ansible_ssh_user }}/VagrantVMs/
         state: directory
         mode: 0755
 
@@ -16,10 +16,10 @@
       register: new_folder_vm
 
     - name: initialize a new ubuntu trusty 32 bit VM
-      command: vagrant init ubuntu/trusty32
-      args:
-        chdir: '{{ new_folder_vm.diff.after.path }}'
-      register: vag_init_output
+      copy:
+        src: templates/Vagrantfile_template
+        dest: '{{ new_folder_vm.diff.after.path }}/Vagrantfile'
+      register: initialized
 
     - name: start the newly created VM
       command: vagrant up
