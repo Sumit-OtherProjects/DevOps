@@ -1,4 +1,5 @@
 <?php
+
 /**
  * phpVirtualBox example configuration. 
  * @version $Id: config.php-example 585 2015-04-04 11:39:31Z imoore76 $
@@ -9,8 +10,8 @@
 class phpVBoxConfig {
 
 /* Username / Password for system user that runs VirtualBox */
-var $username = 'ubuntu';
-var $password = 'bdb5e2b09bbcf05dc6ddfe67';
+var $username = '{{ ansible_ssh_user }}';
+var $password = '{{ ansible_ssh_pass }}';
 
 /* SOAP URL of vboxwebsrv (not phpVirtualBox's URL) */
 var $location = 'http://127.0.0.1:18083/';
