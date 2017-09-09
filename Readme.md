@@ -13,7 +13,7 @@ It uses vagrant to set up a new ubuntu/trusty32 machine inside the mini-VCL serv
 It creates a new unique folder and then copies a Vagrantfile into it and then runs vagrant up.
 
 Or it can be provisioned through phpVirtualBox:
-[![Provisioning new VM using phpVirtualBox](images/phpVirtualBoxScreenshot.png)]
+![Provisioning new VM using phpVirtualBox](images/phpVirtualBoxScreenshot.png)
 
 # Templates
 Some templates required for setting up virtualbox and phpvirtualbox are present in templates/ folder
