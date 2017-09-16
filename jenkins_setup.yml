@@ -6,10 +6,30 @@
     apt: name=python-software-properties
 
   - name: Add Java 8 repository
-    apt_repository: repo='ppa:webupd8team/java'
+    apt_repository: 
+      repo='ppa:webupd8team/java'
 
   - name: Agree to oracle license
     debconf: name=oracle-java8-installer question=shared/accepted-oracle-license-v1-1 vtype=select value=true
 
   - name: Install Java 8
     apt: name=oracle-java8-installer force=yes state=present
+
+  - name: Add jenkins repo key
+    apt_key: 
+      url: https://pkg.jenkins.io/debian/jenkins-ci.org.key
+      state: present
+
+  - name: Add Jenkins repository to source list
+    apt_repository:
+      repo: deb http://pkg.jenkins.io/debian-stable binary/
+      state: present
+
+  - name: Run apt-get update
+    apt:
+      update_cache: yes
+
+  - name: Install jenkins
+    apt:
+      name: jenkins
+      state: present
