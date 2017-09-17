@@ -37,19 +37,19 @@
   - name: Disable security for jenkins
     replace:
       path: /var/lib/jenkins/config.xml
-      regexp: '.*(<userSecurity>).*'
+      regexp: '.*(useSecurity).*'
       replace: ''
 
-  - name: Disable
+  - name: Disable 2
     replace:
       path: /var/lib/jenkins/config.xml
       regexp: '.*(authorizationStrategy).*'
       replace: ''
 
-  - name: Disable
+  - name: Disable 3
     replace:
       path: /var/lib/jenkins/config.xml
-      regexp: '.*denyAnonymousReadAccess.*'
+      regexp: '.*(denyAnonymousReadAccess).*'
       replace: ''
 
   - name: Restart jenkins
