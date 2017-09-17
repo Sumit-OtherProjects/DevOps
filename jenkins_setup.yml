@@ -33,3 +33,26 @@
     apt:
       name: jenkins
       state: present
+
+  - name: Disable security for jenkins
+    replace:
+      path: /var/lib/jenkins/config.xml
+      regexp: '.*(<userSecurity>).*'
+      replace: ''
+
+  - name: Disable
+    replace:
+      path: /var/lib/jenkins/config.xml
+      regexp: '.*(authorizationStrategy).*'
+      replace: ''
+
+  - name: Disable
+    replace:
+      path: /var/lib/jenkins/config.xml
+      regexp: '.*denyAnonymousReadAccess.*'
+      replace: ''
+
+  - name: Restart jenkins
+    systemd:
+      state: restarted
+      name: jenkins
