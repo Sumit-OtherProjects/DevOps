@@ -1,6 +1,6 @@
 # Learning Git Screenshot
 
-![Learning Git Screenshot](/learning-git/with_extra_credit.png?raw=true "Learning Git Tutorial Sceenshot")
+![Learning Git Screenshot](learning-git/with_extra_credit.png?raw=true "Learning Git Tutorial Sceenshot")
 
 # Git Hooks Screencast
 
