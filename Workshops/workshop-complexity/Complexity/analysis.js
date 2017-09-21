@@ -99,6 +99,35 @@ function traverseWithParents(object, visitor)
     }
 }
 
+function getParamCount(node){
+	return node['params'].length;
+}
+
+function getDepth(node) {
+	var depth = 0;
+	if (node.body.type == "BlockStatement") {
+		for (k in node.body.body) {
+			if (k.type == "IfStatement" || k.type == "ForInStatement") {
+				var d = getDepth(k.consequent)
+			}
+		}
+	}
+}
+
+function getDepth2(node){
+	maxDepth = 0;
+	traverseWithParents(node, function (child) {
+		var d = 0;
+		if (child.type == "IfStatement" || child.type == "ForInStatement") {
+			d = getDepth(child) + 1;
+		}
+		if (d  > maxDepth)
+			maxDepth = d;
+	});
+	return maxDepth;
+}
+
+
 function complexity(filePath)
 {
 	var buf = fs.readFileSync(filePath, "utf8");
@@ -121,8 +150,32 @@ function complexity(filePath)
 
 			builder.FunctionName = functionName(node);
 			builder.StartLine    = node.loc.start.line;
+			builder.ParameterCount = getParamCount(node);
+			
+			traverseWithParents(node, function (child) {
+				if (child.type == "IfStatement" || child.type == "ForInStatement") {
+					builder.SimpleCyclomaticComplexity++;
+					var temp = 0;
+					traverseWithParents(child, function (child2) {
+						if (builder.SimpleCyclomaticComplexity > 0) {
+							if (child2.type == "LogicalExpression") 
+								temp++;
+						}
+					});	
+					if (builder.MaxConditions < temp)
+						builder.MaxConditions = temp;
+				}
+			});
+			builder.MaxConditions++;
+
+			builder.MaxNestingDepth = getDepth(node);
 
 			builders[builder.FunctionName] = builder;
+		}
+		else if (node.type == "CallExpression") {
+			if (node.callee.name == "require") {
+				fileBuilder.ImportCount++;
+			}
 		}
 
 	});
