@@ -49,6 +49,13 @@
       name: jenkins
       state: present
     become: yes
+  
+  - name: Wait for Jenkins to start up
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 10
+      state: started
 
   - name: Disable security for jenkins
     replace:
