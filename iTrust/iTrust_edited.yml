@@ -79,7 +79,7 @@
     copy: src=tomcat-initscript.sh dest=/etc/init.d/tomcat mode=0755
 
   - name: Remove permissions on tomcat
-    copy: src=contxt.xml dest=/opt/tomcat9/apache-tomcat-9.0.0.M17/webapps/manager/META-INF
+    copy: src=context.xml dest=/opt/tomcat9/apache-tomcat-9.0.0.M17/webapps/manager/META-INF
 
   - name: Start Tomcat
     service: name=tomcat state=started enabled=yes
