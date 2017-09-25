@@ -78,14 +78,14 @@
       replace: ''
     become: yes
 
-  - name: switch TCP port to random
+  - name: update agent port in jenkins config
     lineinfile: 
       path: /var/lib/jenkins/config.xml
       regexp: '<slaveAgentPort>'
       line: '  <slaveAgentPort>0</slaveAgentPort>'
     become: yes
 
-  - name: Bypass - jenkins.install.InstallUtil.lastExecVersion
+  - name: Bypass jenkins setup wizard
     copy: src=/var/lib/jenkins/jenkins.install.UpgradeWizard.state
           dest=/var/lib/jenkins/jenkins.install.InstallUtil.lastExecVersion
           owner=jenkins
