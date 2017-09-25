@@ -1,3 +1,4 @@
 <Context privileged="true" antiResourceLocking="false">
-   <Valve className="org.apache.catalina.valves.RemoteAddrValve" allow="^.*$" />
+  <Valve className="org.apache.catalina.valves.RemoteAddrValve"
+         allow="127\.0\.0\.1,192\.168\.33\.15" />
 </Context>
