@@ -7,7 +7,9 @@
   tasks:
   - name: update package manager
     apt:
-      update_cache: yes
+      update_cache: true
+      become: true
+      
 
   - name: install Java
     apt_repository:
