@@ -71,13 +71,43 @@
       replace: ''
     become: yes
 
+  - name: switch TCP port to random
+    lineinfile: 
+      path: /var/lib/jenkins/config.xml
+      regexp: '<slaveAgentPort>'
+      line: '  <slaveAgentPort>0</slaveAgentPort>'
+    become: yes
+
+  - name: Bypass - jenkins.install.InstallUtil.lastExecVersion
+    copy: src=/var/lib/jenkins/jenkins.install.UpgradeWizard.state
+          dest=/var/lib/jenkins/jenkins.install.InstallUtil.lastExecVersion
+          owner=jenkins
+          group=jenkins
+          remote_src=True
+    become: yes
+  
   - name: Restart jenkins
     systemd:
       state: restarted
       name: jenkins
     become: yes
-    when: False
+
+  - name: Wait for Jenkins to start up
+    uri:
+      url: http://localhost:8080
+      status_code: 200
+      timeout: 5
+    register: jenkins_service_status
+    retries: 60
+    delay: 5
+    until: >
+      'status' in jenkins_service_status and
+      jenkins_service_status['status'] == 200
   
+  - stat: path=/var/lib/jenkins/secrets/initialAdminPassword
+    register: adminpassword
+    become: yes
+
   - name: Jenkins Skip startUp for MI
     lineinfile:
       dest=/etc/sysconfig/jenkins
@@ -104,6 +134,11 @@
   - name: Install github-plugin
     jenkins_plugin:
       name: github
+    become: yes
+  
+  - name: Install ansible-plugin
+    jenkins_plugin:
+      name: ansible
     become: yes
   
   - name: Restart jenkins
