@@ -145,25 +145,3 @@
       state: restarted
       name: jenkins
     become: yes
-
-  - name: Install node, npm, pip and build-essential
-    apt:
-      name: "{{ item }}"
-      state: present
-    become: yes
-    with_items:
-      - nodejs
-      - npm
-      - build-essential
-      - python-pip
-      - python3-pip
-
-  - name: install pymongo
-    pip:
-      name: pymongo
-      state: present    
-
-  - name: Create job for checkbox.io
-    jenkins_job:
-      config: "{{ lookup('file','checkbox_config.xml')}}"
-      name: checkbox

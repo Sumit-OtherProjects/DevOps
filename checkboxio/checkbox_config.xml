@@ -24,6 +24,7 @@
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <authToken>build-checkbox</authToken>
   <triggers/>
   <concurrentBuild>false</concurrentBuild>
   <builders>
