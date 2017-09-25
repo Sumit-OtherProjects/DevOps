@@ -65,12 +65,29 @@
             "$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
           }
         }
+  
+  - name: Copy ansible playbook for itrust post build job to jenkins server
+    copy:
+      src: 
+      dest: /home/ubuntu/post-build/post-build-itrust.yml
+    when: False
+  
+  - name: Copy inventory for post itrust build job to jenkins server
+    copy:
+      src: 
+      dest: /home/ubuntu/post-build/inventory
+    when: False
+
+  - name: Set up Post Build Job for iTrust
+    jenkins_job:
+      config: "{{ lookup('template', 'templates/itrust_post_build_config.xml.j2') }}" 
+      name: itrust-post-build-job
+      url: http://localhost:8080
 
   - name: Set Up Build Job for iTrust
     jenkins_job:
       config: "{{ lookup('template', 'templates/itrust_config.xml.j2') }}"
       name: itrust-build-job
-      token: build-itrust
       url: http://localhost:8080
     
   - name: Restart jenkins
