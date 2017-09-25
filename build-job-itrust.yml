@@ -1,0 +1,57 @@
+- hosts: nodes
+  gather_facts: yes
+
+
+  tasks:
+  - name: Install Maven If required
+    apt: name=maven
+    become: yes
+  
+  - name: Installing Pre-requisites packages
+    apt: "pkg=python-pip state=present update_cache=yes"
+    become: yes
+  
+
+  - name: Installing python packages requirements
+    pip:
+      name: "{{ item }}"
+      state: present
+      extra_args: "--upgrade"
+    with_items:
+      - pip
+      - lxml
+    become: yes
+    become_flags: "-E"
+    register: pip_output
+  
+  - name: Install python jenkins If required
+    apt: name=python-jenkins
+    become: yes
+    become_flags: "-E"
+    
+  - name: Set Up Build Job for iTrust
+    jenkins_job:
+      config: "{{ lookup('template', 'templates/itrust_config.xml.j2') }}"
+      name: itrust-build-job
+      token: build-itrust
+      url: http://localhost:8080
+    
+  - name: Restart jenkins
+    systemd:
+      state: restarted
+      name: jenkins
+    become: yes
+
+  - name: Wait for Jenkins to start up
+    uri:
+      url: http://localhost:8080
+      status_code: 200
+      timeout: 5
+    register: jenkins_service_status
+    retries: 60
+    delay: 5
+    until: >
+      'status' in jenkins_service_status and
+      jenkins_service_status['status'] == 200
+
+  
