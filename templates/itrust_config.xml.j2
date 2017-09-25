@@ -36,7 +36,7 @@ mvn compile</command>
   </builders>
   <publishers>
     <hudson.tasks.BuildTrigger>
-      <childProjects>itrust-post-build-job</childProjects>
+      <childProjects>{{itrust_post_build_job_name}}</childProjects>
       <threshold>
         <name>SUCCESS</name>
         <ordinal>0</ordinal>

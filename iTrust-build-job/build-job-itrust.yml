@@ -45,6 +45,8 @@
 
   - set_fact:
       id_name: "{{ 999999999999 | random | to_uuid }}"
+      itrust_post_build_job_name: "itrust-post-build-job"
+      itrust_build_job_name: "itrust_build_job"
 
   - name: Set credentials for github in jenkins
     uri:
@@ -81,13 +83,13 @@
   - name: Set up Post Build Job for iTrust
     jenkins_job:
       config: "{{ lookup('template', 'templates/itrust_post_build_config.xml.j2') }}" 
-      name: itrust-post-build-job
+      name: '{{itrust_post_build_job_name}}'
       url: http://localhost:8080
 
   - name: Set Up Build Job for iTrust
     jenkins_job:
       config: "{{ lookup('template', 'templates/itrust_config.xml.j2') }}"
-      name: itrust-build-job
+      name: '{{itrust_build_job_name}}'
       url: http://localhost:8080
     
   - name: Restart jenkins
