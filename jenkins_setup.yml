@@ -1,58 +1,78 @@
 ---
 - hosts: nodes
-  tasks:
+  gather_facts: no
 
+  pre_tasks:
+    - name: install python 2
+      raw: test -e /usr/bin/python || (sudo apt -y update && sudo apt install -y python-minimal)
+      changed_when: False
+    - setup:
+
+  tasks:
   - name: Install java 8 preresequesits
     apt: name=python-software-properties
+    become: yes
 
   - name: Add Java 8 repository
     apt_repository: 
       repo='ppa:webupd8team/java'
+    become: yes
 
   - name: Agree to oracle license
     debconf: name=oracle-java8-installer question=shared/accepted-oracle-license-v1-1 vtype=select value=true
+    become: yes
 
   - name: Install Java 8
     apt: name=oracle-java8-installer force=yes state=present
+    become: yes
+
 
   - name: Add jenkins repo key
     apt_key: 
       url: https://pkg.jenkins.io/debian/jenkins-ci.org.key
       state: present
+    become: yes
 
   - name: Add Jenkins repository to source list
     apt_repository:
       repo: deb http://pkg.jenkins.io/debian-stable binary/
       state: present
+    become: yes
 
   - name: Run apt-get update
     apt:
       update_cache: yes
+    become: yes
 
   - name: Install jenkins
     apt:
       name: jenkins
       state: present
+    become: yes
 
   - name: Disable security for jenkins
     replace:
       path: /var/lib/jenkins/config.xml
       regexp: '.*(useSecurity).*'
       replace: ''
+    become: yes
 
   - name: Disable 2
     replace:
       path: /var/lib/jenkins/config.xml
       regexp: '.*(authorizationStrategy).*'
       replace: ''
+    become: yes
 
   - name: Disable 3
     replace:
       path: /var/lib/jenkins/config.xml
       regexp: '.*(denyAnonymousReadAccess).*'
       replace: ''
+    become: yes
 
   - name: Restart jenkins
     systemd:
       state: restarted
       name: jenkins
+    become: yes
