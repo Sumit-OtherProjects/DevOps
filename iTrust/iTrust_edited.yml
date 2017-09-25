@@ -56,12 +56,6 @@
   - name: retype password for mysql
     debconf: name='mysql-server' question='mysql-server/root_password_again' value='' vtype='password'
 
-
-  - name: update package manager
-    apt:
-      update_cache: yes
-
-
   - name: download Tomcat
     get_url: url=http://archive.apache.org/dist/tomcat/tomcat-9/v9.0.0.M17/bin/apache-tomcat-9.0.0.M17.tar.gz dest=/opt/
 
@@ -79,7 +73,7 @@
     script: tomcatConfig.sh
 
   - name: Configure Tomcat users
-    template: src=users.xml dest=/opt/tomcat9/apache-tomcat-9.0.0.M17/conf/
+    template: src=tomcat_users.xml dest=/opt/tomcat9/apache-tomcat-9.0.0.M17/conf/
 
   - name: Install Tomcat init script
     copy: src=tomcat-initscript.sh dest=/etc/init.d/tomcat mode=0755
