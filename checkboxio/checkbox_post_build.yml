@@ -10,6 +10,18 @@
 
   tasks:
 
+  - name: Install node, npm, pip and build-essential
+    apt:
+      name: "{{ item }}"
+      state: present
+    become: yes
+    with_items:
+      - nodejs
+      - npm
+      - build-essential
+      - python-pip
+      - python3-pip
+
   - name: Deploy checkbox.io to remote server
     copy: 
       src: /var/lib/jenkins/workspace/checkbox/public_html
@@ -43,6 +55,11 @@
       - nodejs
       - build-essential
       - npm
+
+  - name: install pymongo
+    pip:
+      name: pymongo
+      state: present
 
 
   - name: Create a mongodb service
@@ -82,6 +99,17 @@
         MAIL_SMTP="mock"
       marker: "# {mark} ANSIBLE MANAGED BLOCK"
 
+
+  - name: Remove default config of checkbox
+    file:
+      state: absent
+      path: /etc/nginx/sites-available/default
+
+  - name: Remove default config symlink of checkbox
+    file:
+      state: absent
+      path: /etc/nginx/sites-enabled/default          
+
   - name: Make checkbox available in nginx server
     copy:
       src: checkbox.io
@@ -98,19 +126,19 @@
       name: nginx
       state: restarted
 
-  - name: Restart server
-    become: yes
-    shell: sleep 2 && /sbin/shutdown -r now "Reboot for updates"
-    async: 1
-    poll: 0
+  # - name: Restart server
+  #   become: yes
+  #   shell: sleep 2 && /sbin/shutdown -r now "Reboot for updates"
+  #   async: 1
+  #   poll: 0
 
-  - name: Waiting for server to come back
-    become: true
-    local_action: wait_for host={{ inventory_hostname }} state=started port=22 timeout=600 connect_timeout=15 delay=300
+  # - name: Waiting for server to come back
+  #   become: true
+  #   local_action: wait_for host={{ inventory_hostname }} state=started port=22 timeout=600 connect_timeout=15 delay=300
 
-  - name: Up checkbox.io
-    command: node server.js
-    args:
-      chdir: /var/lib/jenkins/workspace/checkbox.io/server-side/site
+  # - name: Up checkbox.io
+  #   command: nodejs server.js
+  #   args:
+  #     chdir: /vol/checkbox.io/server-side/site
 
 
