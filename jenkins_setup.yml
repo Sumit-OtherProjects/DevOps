@@ -107,14 +107,6 @@
   - stat: path=/var/lib/jenkins/secrets/initialAdminPassword
     register: adminpassword
     become: yes
-
-  - name: Jenkins Skip startUp for MI
-    lineinfile:
-      dest=/etc/sysconfig/jenkins
-      regexp='^JENKINS_JAVA_OPTIONS='
-      line='JENKINS_JAVA_OPTIONS="-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"'
-    register: result_skip_startup_wizard
-    when: False
   
   - name: Install build-pipeline-plugin
     jenkins_plugin:
