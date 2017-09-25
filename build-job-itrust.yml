@@ -2,6 +2,14 @@
   gather_facts: yes
 
 
+  vars_prompt:
+    - name: "githubuser"
+      prompt: "Enter unityid"
+      private: no
+    - name: "githubpassword"
+      prompt: "Enter token"
+      private: yes
+
   tasks:
   - name: Install Maven If required
     apt: name=maven
@@ -28,7 +36,36 @@
     apt: name=python-jenkins
     become: yes
     become_flags: "-E"
-    
+  
+  - name: Get crumb
+    uri:
+      url: 'http://localhost:8080/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)'
+      return_content: yes
+    register: crumb
+
+  - set_fact:
+      id_name: "{{ 999999999999 | random | to_uuid }}"
+
+  - name: Set credentials for github in jenkins
+    uri:
+      method: POST
+      follow_redirects: all
+      url: 'http://localhost:8080/credentials/store/system/domain/_/createCredentials'
+      headers:
+        Jenkins-Crumb: "{{ crumb.content.split(':')[1] }}"
+      body: |
+        json={
+          "": "0",
+          "credentials": {
+            # "scope": "GLOBAL",
+            "id": "{{id_name}}",
+            "username": "{{githubuser}}",
+            "password": "{{githubpassword}}",
+            "description": "My new credentials",
+            "$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
+          }
+        }
+
   - name: Set Up Build Job for iTrust
     jenkins_job:
       config: "{{ lookup('template', 'templates/itrust_config.xml.j2') }}"
