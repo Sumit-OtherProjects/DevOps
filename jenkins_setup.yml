@@ -76,3 +76,38 @@
       state: restarted
       name: jenkins
     become: yes
+    when: False
+  
+  - name: Jenkins Skip startUp for MI
+    lineinfile:
+      dest=/etc/sysconfig/jenkins
+      regexp='^JENKINS_JAVA_OPTIONS='
+      line='JENKINS_JAVA_OPTIONS="-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"'
+    register: result_skip_startup_wizard
+    when: False
+  
+  - name: Install build-pipeline-plugin
+    jenkins_plugin:
+      name: build-pipeline-plugin
+    become: yes
+  
+  - name: Install maven-plugin
+    jenkins_plugin:
+      name: maven
+    become: yes
+  
+  - name: Install git-plugin
+    jenkins_plugin:
+      name: git
+    become: yes
+  
+  - name: Install github-plugin
+    jenkins_plugin:
+      name: github
+    become: yes
+  
+  - name: Restart jenkins
+    systemd:
+      state: restarted
+      name: jenkins
+    become: yes
