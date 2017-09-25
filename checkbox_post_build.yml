@@ -1,0 +1,116 @@
+---
+- hosts: nodes
+  gather_facts: false
+
+  pre_tasks:
+    - name: install python 2
+      raw: test -e /usr/bin/python || (sudo apt -y update && sudo apt install -y python-minimal)
+      changed_when: False
+    - setup:
+
+  tasks:
+
+  - name: Deploy checkbox.io to remote server
+    copy: 
+      src: /var/lib/jenkins/workspace/checkbox/public_html
+      dest: /vol/checkbox.io
+      directory_mode: yes
+
+  - name: Import public key for mongodb
+    apt_key:
+      keyserver: keyserver.ubuntu.com
+      id: EA312927
+      state: present
+      validate_certs: no
+
+  - name: Add mongodb source
+    apt_repository:
+      repo: deb [ arch=amd64,arm64 ] http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.4 multiverse
+      state: present
+
+  - name: Update packages
+    apt:
+      update_cache: yes
+
+  - name: Install mongodb, nginx, node, build-essential, npm
+    apt:
+      name: "{{ item }}"
+      state: present
+      allow_unauthenticated: yes
+    with_items:
+      - mongodb-org
+      - nginx
+      - nodejs
+      - build-essential
+      - npm
+
+
+  - name: Create a mongodb service
+    copy:
+      src: mongodb.service
+      dest: /etc/systemd/system
+
+  - name: Start mongodb service and make it available after bootup
+    service:
+      name: mongodb
+      state: started
+      enabled: yes
+
+  - name: Add admin user to mongodb
+    mongodb_user:
+      database: admin
+      name: admin
+      password: "{{ mongodb_password }}"
+      state: present
+      roles: userAdminAnyDatabase
+
+  - name: Restart mongodb service
+    service:
+      name: mongodb
+      state: restarted
+
+  - name: Set mongodb environment variables
+    blockinfile:
+      path: /etc/environment
+      block: |
+        MONGO_PORT="3002"
+        MONGO_IP="127.0.0.1"
+        MONGO_USER="admin"
+        MONGO_PASSWORD="{{ mongodb_password }}"
+        MAIL_USER="devops.adaa@gmail.com"
+        MAIL_PASSWORD="{{ mail_password }}"
+        MAIL_SMTP="mock"
+      marker: "# {mark} ANSIBLE MANAGED BLOCK"
+
+  - name: Make checkbox available in nginx server
+    copy:
+      src: checkbox.io
+      dest: /etc/nginx/sites-available
+
+  - name: Enable checkbox.io in nginx server
+    file:
+      src: /etc/nginx/sites-available/checkbox.io
+      dest: /etc/nginx/sites-enabled/checkbox.io
+      state: link
+
+  - name: Restart nginx
+    service:
+      name: nginx
+      state: restarted
+
+  - name: Restart server
+    become: yes
+    shell: sleep 2 && /sbin/shutdown -r now "Reboot for updates"
+    async: 1
+    poll: 0
+
+  - name: Waiting for server to come back
+    become: true
+    local_action: wait_for host={{ inventory_hostname }} state=started port=22 timeout=600 connect_timeout=15 delay=300
+
+  - name: Up checkbox.io
+    command: node server.js
+    args:
+      chdir: /var/lib/jenkins/workspace/checkbox.io/server-side/site
+
+
