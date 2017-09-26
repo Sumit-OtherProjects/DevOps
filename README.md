@@ -16,7 +16,7 @@ We then added the required plugins using jenkins_plugin module from ansible.
 
 ## Adding oracle virtualbox and vagrant support to the VM
 
-The subsequent tasks involved setting up a virtual machine. For this we had to install oracle virtual box and vagrant in the vm.
+The subsequent tasks involved setting up a virtual machine. For this we had to install oracle virtual box and vagrant in the vm. For this task, we referred to the homework 1.
 
 ## Creating jenkins job to build checkbox.io application and post-build job to be executed after checkbox.io is successfully built
 
@@ -64,7 +64,10 @@ Execute mvn package command in the folder iTrust-v23/iTrust
 Now in same file execute the command mvn tomcat7:deploy to deploy Tomcat
 
 ### Screencast:
-https://www.youtube.com/watch?v=W9ifdHyEBaI&feature=youtu.be⁠⁠⁠⁠
+Part 1 - Jenkins Setup + Build Jobs Setup + Checkbox Post Build: <br />
+https://youtu.be/sdpO8IGLyX8 <br />
+Part 2 - iTrust Post Build: <br />
+https://www.youtube.com/watch?v=W9ifdHyEBaI&feature=youtu.be⁠⁠⁠⁠ <br />
 
 
 ## Contributions:
