@@ -2,20 +2,32 @@
 - hosts: nodes
   remote_user: root
   sudo: yes
-  
-  
+
   vars_prompt:
-  - name: "githubuser"
-    prompt: "Enter unityid"
+  - name: "gituser"
+    prompt: "Enter Unity Id"
     private: no
-  - name: "githubpassword"
-    prompt: "Enter token"
+
+  - name: "gitpass"
+    prompt: "Enter Token"
     private: yes
 
+
   tasks:
-  - name: update package manager
-    apt:
-      update_cache: yes
+  - name: apt update
+    apt: update_cache=yes cache_valid_time=3600
+    register: apt_result
+    until: apt_result|success
+    retries: 3
+    delay: 1
+    sudo: yes
+    ignore_errors: yes
+
+  - name: retry if needed using command apt-get update
+    command: apt-get update
+    sudo: yes
+    when: apt_result|failed
+      
 
   - name: install Java
     apt_repository:
@@ -31,33 +43,66 @@
     sudo: yes
 
 
-  - name: install maven
-    apt_repository:
-                repo: 'ppa:andrei-pozolotin/maven3'
+  - name: Install Maven If required
+    apt: name=maven
+    become: yes
 
-  - name: install mvn3 version
-    apt:
-      name: maven3
-      state: installed
-
-  - name: updating
-    apt:
-     update_cache: yes
-
-  - name: install Mysql
-    apt: pkg=mysql-server state=latest update_cache=true
+  - name: install maven (and other packages if needed)
+    become: yes
+    apt: pkg={{ item }} state=latest update_cache=yes cache_valid_time=3600
+    with_items:
+      - maven
 
   - name: change password for mysql
-    debconf: name='mysql-server' question='mysql-server/root_password' value='' vtype='password'
+    debconf: name=mysql-server question=mysql-server/root_password value=123456 vtype='password'
 
   - name: retype password for mysql
-    debconf: name='mysql-server' question='mysql-server/root_password_again' value='' vtype='password'
+    debconf: name=mysql-server question=mysql-server/root_password_again value=123456 vtype='password'
+
+  - name: Install required system packages
+    apt: pkg={{ item }} state=present
+    with_items:
+      - libmysqlclient-dev
+      - python-dev
+      - python-pip
+      - gcc
+      - python-setuptools
+      - mysql-server
+      - git-core
+      - mysql-client
+      - python-setuptools
+      - python-mysqldb
+    become: yes
 
 
-  - name: update package manager
-    apt:
-      update_cache: yes
+  - name: ensure mysql is running and starts on boot
+    service: name=mysql state=started enabled=true
 
+  - name: Install - MySQL-python
+    pip: name=MySQL-python
+    become: yes
+
+  #- name: change password for mysql
+  #  debconf: name='mysql-server' question='mysql-server/root_password' value='' vtype='password'
+
+  #- name: retype password for mysql
+  #  debconf: name='mysql-server' question='mysql-server/root_password_again' value='' vtype='password'
+
+  #- name: Ensure anonymous users are not in the database
+  #  mysql_user: user='' host=$item state=absent
+  #  with_items:
+  #    - 127.0.0.1
+  #    - ::1
+  #    - localhost
+
+  #- name: Create deploy user for mysql
+  #  mysql_user: user="deploy" host="%" password='' priv=*.*:ALL,GRANT
+
+  - name: Remove MySQL case sensitivity
+    copy: src=my.cnf dest=/etc/mysql
+
+  - name: Restart MySQL service
+    service: name=mysql state=restarted
 
   - name: download Tomcat
     get_url: url=http://archive.apache.org/dist/tomcat/tomcat-9/v9.0.0.M17/bin/apache-tomcat-9.0.0.M17.tar.gz dest=/opt/
@@ -73,16 +118,16 @@
 
   - name: Configure tomcat environment variables
     become_user: root
-    script: tomcatConfig.sh
+    script: config.sh
 
   - name: Configure Tomcat users
-    template: src=users.xml dest=/opt/tomcat9/apache-tomcat-9.0.0.M17/conf/
+    template: src=tomcat-users.xml dest=/opt/tomcat9/apache-tomcat-9.0.0.M17/conf/
 
   - name: Install Tomcat init script
-    copy: src=tomcat-initscript.sh dest=/etc/init.d/tomcat mode=0755
+    copy: src=init.sh dest=/etc/init.d/tomcat mode=0755
 
   - name: Remove permissions on tomcat
-    copy: src=contxt.xml dest=/opt/tomcat9/apache-tomcat-9.0.0.M17/webapps/manager/META-INF
+    copy: src=context.xml dest=/opt/tomcat9/apache-tomcat-9.0.0.M17/webapps/manager/META-INF
 
   - name: Start Tomcat
     service: name=tomcat state=started enabled=yes
@@ -97,24 +142,23 @@
     copy: src=manager.xml dest=/opt/tomcat9/apache-tomcat-9.0.0.M17/conf/Catalina/localhost
 
   - name: Maven settings
-    copy: src=settings.xml dest=/usr/share/maven3/conf
+    copy: src=settings.xml dest=/usr/share/maven/conf
 
 
   - name: Install git
     apt: name=git state=present
-
-  - name: Git clone
+  
+  - name: git clone
     become_user: root
-    git: repo=https://{{ githubuser }}:{{ githubpassword }}@github.ncsu.edu/#supply ankur's git path of iTrust dest=/root/iTrust-v23
+    git: repo=https://{{ gituser }}:{{ gitpass }}@github.ncsu.edu/engr-csc326-staff/iTrust-v23.git dest=/root/iTrust-v23
 
   - name: Maven package - change directory to iTrust before that
     become_user: root
-    shell: mvn package
-    args:
-      chdir: /root/iTrust-v23/iTrust
+    script: mvn.sh
 
   - name: deploy maven - change directory to iTrust before that
     become_user: root
-    sshell: mvn tomcat7:deploy
+    shell: mvn tomcat7:deploy
     args:
       chdir: /root/iTrust-v23/iTrust
+
