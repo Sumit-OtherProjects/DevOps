@@ -13,17 +13,17 @@
     - setup:
 
   tasks:    
-  # - name: Install node, npm, pip and build-essential
-  #   apt:
-  #     name: "{{ item }}"
-  #     state: present
-  #   become: yes
-  #   with_items:
-  #     - nodejs
-  #     - npm
-  #     - build-essential
-  #     - python-pip
-  #     - python3-pip
+  - name: Install node, npm, pip and build-essential
+    apt:
+      name: "{{ item }}"
+      state: present
+    become: yes
+    with_items:
+      - nodejs
+      - npm
+      - build-essential
+      - python-pip
+      - python3-pip
 
   - name: Create post build directory if doesn't exists
     file:

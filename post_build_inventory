@@ -1,8 +1,8 @@
 [checkboxio]
-192.168.33.20 ansible_ssh_user=ubuntu ansible_ssh_private_key_file=keys/checkboxio.key ansible_python_interpreter=/usr/bin/python3
+192.168.33.20 ansible_ssh_user=vagrant ansible_ssh_private_key_file=keys/checkboxio.key ansible_python_interpreter=/usr/bin/python
 
 [itrust]
-192.168.33.21 ansible_ssh_user=ubuntu ansible_ssh_private_key_file=keys/itrust.key ansible_python_interpreter=/usr/bin/python3
+192.168.33.21 ansible_ssh_user=vagrant ansible_ssh_private_key_file=keys/itrust.key ansible_python_interpreter=/usr/bin/python
 
 [locals]
 localhost ansible_connection=local
