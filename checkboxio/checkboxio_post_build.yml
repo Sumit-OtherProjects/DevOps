@@ -1,5 +1,41 @@
 ---
-- hosts: nodes
+- hosts: locals
+  gather_facts: false
+
+  vars:
+    vagrant_path: /home/ubuntu/vagrant_vm/checkboxio
+    vagrant_key_path: /home/ubuntu/vagrant_vm/checkboxio/vagrant/machines/default/virtualbox/private_key
+    vagrant_ip: 192.168.33.20
+    ansible_keys_dir: /home/ubuntu/post-build/keys
+
+  tasks:
+
+  - name: Create directory for vagrant vm
+    file:
+      path: "{{ vagrant_path }}"
+      state: directory
+
+  - name: Create vagrant init space
+    copy:
+      src: files/Vagrant_checkboxio
+      dest: "{{ vagrant_path }}"
+
+  - name: Create directory for vagrant ssh keys
+    file:
+      path: "{{ ansible_keys_dir }}"
+      state: directory
+
+  - name: Provision vm
+    command: vagrant up
+    args:
+      chdir: "{{ vagrant_path }}"
+
+  - name: Copy the vagrant key to required path
+    copy:
+      src: "{{ vagrant_key_path}}"
+      dest: "{{ ansible_keys_dir }}"/checkboxio.key     
+
+- hosts: checkboxio
   gather_facts: false
 
   pre_tasks:
@@ -64,7 +100,7 @@
 
   - name: Create a mongodb service
     copy:
-      src: mongodb.service
+      src: files/mongodb.service
       dest: /etc/systemd/system
 
   - name: Start mongodb service and make it available after bootup
@@ -112,7 +148,7 @@
 
   - name: Make checkbox available in nginx server
     copy:
-      src: checkbox.io
+      src: files/checkbox.io
       dest: /etc/nginx/sites-available
 
   - name: Enable checkbox.io in nginx server
