@@ -20,4 +20,9 @@ The subsequent tasks involved setting up a virtual machine. For this we had to i
 
 ## Creating jenkins job to build checkbox.io application and post-build job to be executed after checkbox.io is successfully built
 
-We setup the jenkins job by creating a config template.
+We setup the jenkins job by creating jenkins config.xml template. This config.xml was produced by creating a job on ui and then making changes as required. 
+We used jinja template and template module on ansible, along with jenkins_job module. This created a job on the jenkins server. 
+All of this was configured automatically by checkboxio_build.yml.
+
+The second task was setting up a post-build task. We achieved this goal by triggering another job, that basically ran an ansible playbook called as checkboxio_post_build.yml.
+This playbook would create a vm, and configure it to run the checkbox.io application.
