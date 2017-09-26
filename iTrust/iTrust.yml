@@ -82,22 +82,6 @@
     pip: name=MySQL-python
     become: yes
 
-  #- name: change password for mysql
-  #  debconf: name='mysql-server' question='mysql-server/root_password' value='' vtype='password'
-
-  #- name: retype password for mysql
-  #  debconf: name='mysql-server' question='mysql-server/root_password_again' value='' vtype='password'
-
-  #- name: Ensure anonymous users are not in the database
-  #  mysql_user: user='' host=$item state=absent
-  #  with_items:
-  #    - 127.0.0.1
-  #    - ::1
-  #    - localhost
-
-  #- name: Create deploy user for mysql
-  #  mysql_user: user="deploy" host="%" password='' priv=*.*:ALL,GRANT
-
   - name: Remove MySQL case sensitivity
     copy: src=my.cnf dest=/etc/mysql
 
