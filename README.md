@@ -36,7 +36,7 @@ In order to build itrust application, we required java and maven. The ansible sc
 
 The main issue while creating this jenkins job was providing a way to ask for github credentials. We accomplished this by using vars_prompt feature of ansible.
 
-The second task was crating a post build job that will run this application.
+The second task was creating a post build job that will run this application.
 
 ### Challenges faced:
 
@@ -65,3 +65,22 @@ Now in same file execute the command mvn tomcat7:deploy to deploy Tomcat
 
 ### Screencast:
 https://www.youtube.com/watch?v=W9ifdHyEBaI&feature=youtu.be⁠⁠⁠⁠
+
+
+## Contributions:
+
+### Abhimanyu Jataria (ajataria)
+
+Involved with creating jenkins setup and post-build script to run itrust. Resolved multiple issues with setup of maven and tomcat, along with their integration.
+
+### Ankur Garg (agarg12)
+
+Resolved issues with jenkins setup like bypassing setup screen and installing plugins from ansible. Created build job for itrust application and worked towards integrating post build job of checkbox.io with ansible.
+
+### Debosmita Das (ddas5)
+
+Resolved issues with initial jenkins setup and worked towards creating post-build job for itrust application. Found solutions for problems related to tomcat and mysql.
+
+### Atit Shetty (akshetty)
+
+Tinkered over problems with user authetication in jenkins. Created build jobs for checkbox.io and wrote post-build script for deploying checkbox.io on nginx. Worked towards integrating both the jobs using ansible.
