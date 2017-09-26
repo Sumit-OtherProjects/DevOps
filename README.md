@@ -25,9 +25,18 @@ We used jinja template and template module on ansible, along with jenkins_job mo
 All of this was configured automatically by checkboxio_build.yml.
 
 The second task was setting up a post-build task. We achieved this goal by triggering another job, that basically ran an ansible playbook called as checkboxio_post_build.yml.
+
 This playbook would create a vm, and configure it to run the checkbox.io application.
 
+Some of the challenges involved were creating user for mongodb, creating config file for deploying checkbox.io on nginx, and creating service for mongodb that will be enabled from bootup.
+
 ## Creating jenkins job to build itrust application and post-build job.
+
+In order to build itrust application, we required java and maven. The ansible script build-job-itrust.yml, provided all the dependecies to create a jenkins job that will do a maven build of iotrust application.
+
+The main issue while creating this jenkins job was providing a way to ask for github credentials. We accomplished this by using vars_prompt feature of ansible.
+
+The second task was crating a post build job that will run this application.
 
 ### Challenges faced:
 
