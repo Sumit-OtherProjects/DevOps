@@ -1,5 +1,5 @@
 ---
-- hosts: locals
+- hosts: nodes
   gather_facts: no
 
   vars:
@@ -40,6 +40,7 @@
       src: files
       dest: "{{ post_build_path }}"
       directory_mode: yes
+    become: yes
 
   - name: Transfer inventory file
     copy:

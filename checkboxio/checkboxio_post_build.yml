@@ -17,8 +17,9 @@
 
   - name: Create vagrant init space
     copy:
-      src: files/Vagrant_checkboxio
-      dest: "{{ vagrant_path }}"
+      src: files/Vagrantfile_checkboxio
+      dest: "{{ vagrant_path }}/Vagrantfile"
+    become: yes
 
   - name: Create directory for vagrant ssh keys
     file:
@@ -33,7 +34,7 @@
   - name: Copy the vagrant key to required path
     copy:
       src: "{{ vagrant_key_path}}"
-      dest: "{{ ansible_keys_dir }}"/checkboxio.key     
+      dest: "{{ ansible_keys_dir }}/checkboxio.key" 
 
 - hosts: checkboxio
   gather_facts: false
