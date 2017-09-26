@@ -98,13 +98,18 @@ function mutationTesting(path,iterations)
 
         var trace = stackTrace.parse( failed.stack );
         var msg = failed.stack.split("\n")[0];
-        console.log( msg, trace[0].methodName, trace[0].lineNumber );
+        // console.log( msg, trace[0].methodName, trace[0].lineNumber );
 
-        var key = trace[0].methodName + trace[0].lineNumber;
+        var key = trace[0].methodName + ':' + trace[0].lineNumber + ":" + trace[0].column;
         if (!reduced.hasOwnProperty(key)) {
             reducedTests.push(failedTests[i]);
             reduced[key] = failedTests[i];
         }
+    }
+
+    // Print details about reduced tests
+    for (var i = 0; i < reducedTests.length; i++) {
+        console.log(stackTrace.parse(reducedTests[i].stack))
     }
 
     console.log( "passed {0}, failed {1}, reduced {2}".format(passedTests, failedTests.length, reducedTests.length) );
