@@ -1,3 +1,14 @@
+## Challenges faced:
+
+1. Installing mysql with custom password and then executing mvn package was quite challenging.
+2. To avoid this issue we updated password for mysql server through ansible playbook debconf command
+3. We changed password in context.xml file as well.
+4. We updated the configuration file my.cnf for MySQL with the following and removed all other specifications:
+  [mysqld]
+  lower_case_table_names = 1
+  !includedir /etc/mysql/conf.d/
+This helped us in running maven after mysql installation and we could do away with any access issue that we faced while deploying iTrust.
+
 ## Steps for iTrust.yml:
 The playbook iTrust.yml will do the following:
 1. Ask for github user id and password
