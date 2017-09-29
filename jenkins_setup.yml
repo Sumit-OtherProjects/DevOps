@@ -1,0 +1,147 @@
+---
+- hosts: nodes
+  gather_facts: no
+
+  pre_tasks:
+    - name: install python 2
+      raw: test -e /usr/bin/python || (sudo apt -y update && sudo apt install -y python-minimal)
+      changed_when: False
+    - setup:
+
+  tasks:
+  - name: Install java 8 preresequesits
+    apt: name=python-software-properties
+    become: yes
+
+  - name: Add Java 8 repository
+    apt_repository: 
+      repo='ppa:webupd8team/java'
+    become: yes
+
+  - name: Agree to oracle license
+    debconf: name=oracle-java8-installer question=shared/accepted-oracle-license-v1-1 vtype=select value=true
+    become: yes
+
+  - name: Install Java 8
+    apt: name=oracle-java8-installer force=yes state=present
+    become: yes
+
+
+  - name: Add jenkins repo key
+    apt_key: 
+      url: https://pkg.jenkins.io/debian/jenkins-ci.org.key
+      state: present
+    become: yes
+
+  - name: Add Jenkins repository to source list
+    apt_repository:
+      repo: deb http://pkg.jenkins.io/debian-stable binary/
+      state: present
+    become: yes
+
+  - name: Run apt-get update
+    apt:
+      update_cache: yes
+    become: yes
+
+  - name: Install jenkins
+    apt:
+      name: jenkins
+      state: present
+    become: yes
+  
+  - name: Wait for Jenkins to start up
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 10
+      state: started
+
+  - name: Disable security for jenkins
+    replace:
+      path: /var/lib/jenkins/config.xml
+      regexp: '.*(useSecurity).*'
+      replace: ''
+    become: yes
+
+  - name: Disable 2
+    replace:
+      path: /var/lib/jenkins/config.xml
+      regexp: '.*(authorizationStrategy).*'
+      replace: ''
+    become: yes
+
+  - name: Disable 3
+    replace:
+      path: /var/lib/jenkins/config.xml
+      regexp: '.*(denyAnonymousReadAccess).*'
+      replace: ''
+    become: yes
+
+  - name: update agent port in jenkins config
+    lineinfile: 
+      path: /var/lib/jenkins/config.xml
+      regexp: '<slaveAgentPort>'
+      line: '  <slaveAgentPort>0</slaveAgentPort>'
+    become: yes
+
+  - name: Bypass jenkins setup wizard
+    copy: src=/var/lib/jenkins/jenkins.install.UpgradeWizard.state
+          dest=/var/lib/jenkins/jenkins.install.InstallUtil.lastExecVersion
+          owner=jenkins
+          group=jenkins
+          remote_src=True
+    become: yes
+  
+  - name: Restart jenkins
+    systemd:
+      state: restarted
+      name: jenkins
+    become: yes
+
+  - name: Wait for Jenkins to start up
+    uri:
+      url: http://localhost:8080
+      status_code: 200
+      timeout: 5
+    register: jenkins_service_status
+    retries: 60
+    delay: 5
+    until: >
+      'status' in jenkins_service_status and
+      jenkins_service_status['status'] == 200
+  
+  - stat: path=/var/lib/jenkins/secrets/initialAdminPassword
+    register: adminpassword
+    become: yes
+  
+  - name: Install build-pipeline-plugin
+    jenkins_plugin:
+      name: build-pipeline-plugin
+    become: yes
+  
+  - name: Install maven-plugin
+    jenkins_plugin:
+      name: maven
+    become: yes
+  
+  - name: Install git-plugin
+    jenkins_plugin:
+      name: git
+    become: yes
+  
+  - name: Install github-plugin
+    jenkins_plugin:
+      name: github
+    become: yes
+  
+  - name: Install ansible-plugin
+    jenkins_plugin:
+      name: ansible
+    become: yes
+  
+  - name: Restart jenkins
+    systemd:
+      state: restarted
+      name: jenkins
+    become: yes

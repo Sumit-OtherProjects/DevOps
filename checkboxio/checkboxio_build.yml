@@ -1,0 +1,58 @@
+---
+- hosts: nodes
+  gather_facts: no
+
+  vars:
+    pb_job_name : checkbox_post_build
+    post_build_path: /home/ubuntu/post-build
+
+  pre_tasks:
+    - name: install python 2
+      raw: test -e /usr/bin/python || (sudo apt -y update && sudo apt install -y python-minimal)
+      changed_when: False
+    - setup:
+
+  tasks:    
+  - name: Install node, npm, pip and build-essential
+    apt:
+      name: "{{ item }}"
+      state: present
+    become: yes
+    with_items:
+      - nodejs
+      - npm
+      - build-essential
+      - python-pip
+      - python3-pip
+
+  - name: Create post build directory if doesn't exists
+    file:
+      path: "{{ post_build_path }}"
+      state: directory
+
+  - name: Provide ansible scripts for post build job
+    copy:
+      src: checkboxio_post_build.yml
+      dest: "{{ post_build_path }}"
+
+  - name: Transfer supplementary files for running ansible scripts
+    copy:
+      src: files
+      dest: "{{ post_build_path }}"
+      directory_mode: yes
+    become: yes
+
+  - name: Transfer inventory file
+    copy:
+      src: ../post_build_inventory
+      dest: "{{ post_build_path }}"
+
+  - name: Create job for checkbox.io
+    jenkins_job:
+      config: "{{ lookup('template','templates/checkbox_build_config.xml.j2')}}"
+      name: checkbox
+
+  - name: Create job for checkbox.io post build
+    jenkins_job:
+      config: "{{ lookup('template','templates/checkbox_post_build_config.xml.j2')}}"
+      name: "{{ pb_job_name }}"
