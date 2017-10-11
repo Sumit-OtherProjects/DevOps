@@ -249,6 +249,8 @@ function constraints(filePath)
 
 			functionConstraints[funcName] = {constraints:[], params: params};
 
+			localVariablesNeeded = {};
+
 			// Check for expressions using argument.
 			traverse(node, function(child)
 			{
@@ -441,6 +443,25 @@ function constraints(filePath)
 						}
 					}
 				}
+
+				// if (child.type == "VariableDeclaration") {
+				// 	localVariablesNeeded[child.id.name] = {};
+				// 	if (child.init.type == "Literal") {
+				// 		localVariablesNeeded[child.id.name]['value'] = child.init.value;
+				// 	}
+				// 	else if (child.init.type == "MemberExpression") {
+				// 		localVariablesNeeded[child.id.name]['object'] = child.init.object.name;
+				// 		localVariablesNeeded[child.id.name]['property'] = child.init.property.name;
+				// 	}
+				// }
+
+				// if (child.type == "ForStatement") {
+				// 	if (child.test.type == "BinaryExpression") {
+				// 		if (child.test.operator == '<') {
+				// 			if (child.)
+				// 		}
+				// 	}
+				// }
 
 			});
 
