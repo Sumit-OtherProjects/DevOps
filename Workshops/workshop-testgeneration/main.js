@@ -39,6 +39,7 @@ function Constraint(properties)
 	this.expression = properties.expression;
 	this.operator = properties.operator;
 	this.value = properties.value;
+	this.altvalue = properties.altvalue;
 	this.funcName = properties.funcName;
 	// Supported kinds: "fileWithContent","fileExists"
 	// integer, string, phoneNumber
@@ -78,6 +79,7 @@ function generateTestCases()
 	for ( var funcName in functionConstraints )
 	{
 		var params = {};
+		var altparams = {};
 
 		// initialize params
 		for (var i =0; i < functionConstraints[funcName].params.length; i++ )
@@ -85,6 +87,14 @@ function generateTestCases()
 			var paramName = functionConstraints[funcName].params[i];
 			//params[paramName] = '\'' + faker.phone.phoneNumber()+'\'';
 			params[paramName] = '\'\'';
+		}
+
+		// initialize altparams
+		for (var i =0; i < functionConstraints[funcName].params.length; i++ )
+		{
+			var paramName = functionConstraints[funcName].params[i];
+			//params[paramName] = '\'' + faker.phone.phoneNumber()+'\'';
+			altparams[paramName] = '\'\'';
 		}
 
 		//console.log( params );
@@ -102,11 +112,19 @@ function generateTestCases()
 			if( params.hasOwnProperty( constraint.ident ) )
 			{
 				params[constraint.ident] = constraint.value;
+				console.log(constraint.ident, " = ", constraint.value);
+			}
+
+			if( altparams.hasOwnProperty( constraint.ident ) )
+			{
+				altparams[constraint.ident] = constraint.altvalue;
 			}
 		}
 
 		// Prepare function arguments.
 		var args = Object.keys(params).map( function(k) {return params[k]; }).join(",");
+		var altargs = Object.keys(altparams).map( function(k) {return altparams[k]; }).join(",");
+		
 		if( pathExists || fileWithContent )
 		{
 			content += generateMockFsTestCases(pathExists,fileWithContent,funcName, args);
@@ -119,6 +137,7 @@ function generateTestCases()
 		{
 			// Emit simple test case.
 			content += "subject.{0}({1});\n".format(funcName, args );
+			content += "subject.{0}({1});\n".format(funcName, altargs );
 		}
 
 	}
@@ -163,7 +182,7 @@ function constraints(filePath)
 		if (node.type === 'FunctionDeclaration') 
 		{
 			var funcName = functionName(node);
-			console.log("Line : {0} Function: {1}".format(node.loc.start.line, funcName ));
+			// console.log("Line : {0} Function: {1}".format(node.loc.start.line, funcName ));
 
 			var params = node.params.map(function(p) {return p.name});
 
@@ -174,6 +193,7 @@ function constraints(filePath)
 			{
 				if( child.type === 'BinaryExpression' && child.operator == "==")
 				{
+					// var expression = buf.substring(child.range[0], child.range[1]);
 					if( child.left.type == 'Identifier' && params.indexOf( child.left.name ) > -1)
 					{
 						// get expression from original source code:
@@ -185,11 +205,44 @@ function constraints(filePath)
 							{
 								ident: child.left.name,
 								value: rightHand,
+								altvalue: !rightHand,
 								funcName: funcName,
 								kind: "integer",
 								operator : child.operator,
 								expression: expression
 							}));
+					}
+					else if (child.left.type != 'Identifier'){
+						var expression = buf.substring(child.range[0], child.range[1]);
+						var rightHand = buf.substring(child.right.range[0], child.right.range[1])
+
+						if(expression.includes('indexOf')){
+							var text = "'";
+							var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+						  
+							for (var i = 0; i < parseInt(rightHand); i++) {
+								text += possible.charAt(Math.floor(Math.random() * possible.length));
+							}
+							var l = expression.indexOf(')');
+							var start = expression.indexOf('(')
+							text += expression.substring(start+2, l-1);
+							console.log("non integer expression", text, expression);
+							var altvalue = text + "a" + "'";
+							text += "'"
+
+							functionConstraints[funcName].constraints.push( 
+								new Constraint(
+								{
+									ident: child.left.name,
+									value: text,
+									altvalue: altvalue,
+									funcName: funcName,
+									kind: "string",
+									operator : child.operator,
+									expression: expression
+								}));
+						}
+						
 					}
 				}
 
@@ -206,6 +259,29 @@ function constraints(filePath)
 							{
 								ident: child.left.name,
 								value: parseInt(rightHand) - 10,
+								altvalue: parseInt(rightHand) + 10,
+								funcName: funcName,
+								kind: "integer",
+								operator : child.operator,
+								expression: expression
+							}));
+					}
+				}
+
+				if( child.type === 'BinaryExpression' && child.operator == ">")
+				{
+					if( child.left.type == 'Identifier' && params.indexOf( child.left.name ) > -1)
+					{
+						// get expression from original source code:
+						var expression = buf.substring(child.range[0], child.range[1]);
+						var rightHand = buf.substring(child.right.range[0], child.right.range[1])
+
+						functionConstraints[funcName].constraints.push( 
+							new Constraint(
+							{
+								ident: child.left.name,
+								value: parseInt(rightHand) + 10,
+								altvalue: parseInt(rightHand) - 10,
 								funcName: funcName,
 								kind: "integer",
 								operator : child.operator,
@@ -261,7 +337,7 @@ function constraints(filePath)
 
 			});
 
-			console.log( functionConstraints[funcName]);
+			// console.log( functionConstraints[funcName]);
 
 		}
 	});
