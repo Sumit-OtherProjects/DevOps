@@ -191,7 +191,7 @@ function generateTestCases()
 			// console.log(Object.values(altparams));
 			// content += "subject.{0}({1});\n".format(funcName, altargs );
 
-			combinations = []
+			combinations = [];
 			createCombinations(Object.values(params), 0, Array(Object.values(params).length), combinations);
 			// console.log(Object.values(params));
 			// console.log(combinations);
@@ -358,6 +358,35 @@ function constraints(filePath)
 								ident: child.left.name,
 								value: parseInt(rightHand) + 1,
 								altvalue: parseInt(rightHand) -1,
+								funcName: funcName,
+								kind: "integer",
+								operator : child.operator,
+								expression: expression
+							}));
+					}
+				}
+
+				if (child.type == 'UnaryExpression' && child.operator == '!') {
+					if (child.argument.type == 'Identifier' && params.indexOf(child.argument.name) > -1) {
+						functionConstraints[funcName].constraints.push( 
+							new Constraint(
+							{
+								ident: child.argument.name,
+								value: 'undefined',
+								altvalue: '{}',
+								funcName: funcName,
+								kind: "integer",
+								operator : child.operator,
+								expression: expression
+							}));
+					}
+					else if (child.argument.type == 'MemberExpression' && params.indexOf(child.argument.object.name) > -1) {
+						functionConstraints[funcName].constraints.push( 
+							new Constraint(
+							{
+								ident: child.argument.object.name,
+								value: '{}',
+								altvalue: '{"'+child.argument.property.name+'": true}',
 								funcName: funcName,
 								kind: "integer",
 								operator : child.operator,
