@@ -98,10 +98,36 @@ function fillParams(constraints,params,property)
 	}
 }
 
+function createPermutations(args, altargs) {
+	result = new Array(Math.pow(2, args.length));
+	for(var i = 0; i < result.length; i++) {
+		binaryStr = i.toString(2);
+		
+		if (binaryStr.length < args.length) {
+			binaryStr = Array(args.length - binaryStr.length+1).join("0") + binaryStr;
+		}
+		temp = Array(args.length);
+		
+		for (var j = 0; j < binaryStr.length; j++) {
+			ind = parseInt(binaryStr.charAt(j))
+			
+			if (ind == 0) {
+				temp[j] = args[j];
+			}
+			else {
+				temp[j] = altargs[j];
+			}
+		}
+		result[i] = temp;
+	}
+	return result;
+}
+
 function generateTestCases()
 {
 
 	var content = "var subject = require('./subject.js')\nvar mock = require('mock-fs');\n";
+	
 	for ( var funcName in functionConstraints )
 	{
 
@@ -137,10 +163,19 @@ function generateTestCases()
 		else
 		{
 
-			console.log( altargs )
+			// console.log( altargs )
 			// Emit simple test case.
-			content += "subject.{0}({1});\n".format(funcName, args );
-			content += "subject.{0}({1});\n".format(funcName, altargs );
+			// TODO: write logic to generate different permutations of argument values 
+			// This should increase coverage significantly
+			// content += "subject.{0}({1});\n".format(funcName, args );
+			// console.log(Object.values(params));
+			// console.log(Object.values(altparams));
+			// content += "subject.{0}({1});\n".format(funcName, altargs );
+
+			combinations = createPermutations(Object.values(params), Object.values(altparams));
+			for (var i = 0; i < combinations.length; i++) {
+				content += "subject.{0}({1});\n".format(funcName, combinations[i]);
+			}
 		}
 
 	}
@@ -185,7 +220,7 @@ function constraints(filePath)
 		if (node.type === 'FunctionDeclaration') 
 		{
 			var funcName = functionName(node);
-			console.log("Line : {0} Function: {1}".format(node.loc.start.line, funcName ));
+			// console.log("Line : {0} Function: {1}".format(node.loc.start.line, funcName ));
 
 			var params = node.params.map(function(p) {return p.name});
 
@@ -201,18 +236,64 @@ function constraints(filePath)
 						// get expression from original source code:
 						var expression = buf.substring(child.range[0], child.range[1]);
 						var rightHand = buf.substring(child.right.range[0], child.right.range[1])
-
+						var altright;
+						if (isNaN(parseFloat(rightHand))){
+							if (rightHand == "undefined") {
+								altright = false;
+							}
+							else {
+								altright = rightHand.substring(0, rightHand.length-1) + "a\"";
+							}
+						}
+						else {
+							altright = parseFloat(rightHand) + 1;
+						}
 						functionConstraints[funcName].constraints.push( 
 							new Constraint(
 							{
 								ident: child.left.name,
 								value: rightHand,
-								altvalue: !rightHand,
+								altvalue: altright,
 								funcName: funcName,
 								kind: "integer",
 								operator : child.operator,
 								expression: expression
 							}));
+					}
+					else if (child.left.type != 'Identifier') {
+						var expression = buf.substring(child.range[0], child.range[1]);
+						var rightHand = buf.substring(child.right.range[0], child.right.range[1])
+
+						if(expression.includes('indexOf')){
+							var text = "'";
+							var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+						  
+							for (var i = 0; i < parseInt(rightHand); i++) {
+								text += possible.charAt(Math.floor(Math.random() * possible.length));
+							}
+							var l = expression.indexOf(')');
+							var start = expression.indexOf('(')
+							text += expression.substring(start+2, l-1);
+							// console.log("non integer expression", text, expression);
+							var altvalue = text + "a" + "'";
+							text += "'"
+							console.log(funcName);
+							console.log(text);
+							console.log(altvalue);
+
+							functionConstraints[funcName].constraints.push( 
+								new Constraint(
+								{
+									ident: child.left.name,
+									value: text,
+									altvalue: altvalue,
+									funcName: funcName,
+									kind: "integer",
+									operator : child.operator,
+									expression: expression
+								}));
+						}
+						
 					}
 				}
 
@@ -230,6 +311,28 @@ function constraints(filePath)
 								ident: child.left.name,
 								value: parseInt(rightHand) - 1,
 								altvalue: parseInt(rightHand) +1,
+								funcName: funcName,
+								kind: "integer",
+								operator : child.operator,
+								expression: expression
+							}));
+					}
+				}
+
+				if( child.type === 'BinaryExpression' && child.operator == ">" )
+				{
+					if( child.left.type == 'Identifier' && params.indexOf( child.left.name ) > -1)
+					{
+						// get expression from original source code:
+						var expression = buf.substring(child.range[0], child.range[1]);
+						var rightHand = buf.substring(child.right.range[0], child.right.range[1])
+
+						functionConstraints[funcName].constraints.push( 
+							new Constraint(
+							{
+								ident: child.left.name,
+								value: parseInt(rightHand) + 1,
+								altvalue: parseInt(rightHand) -1,
 								funcName: funcName,
 								kind: "integer",
 								operator : child.operator,
@@ -285,7 +388,7 @@ function constraints(filePath)
 
 			});
 
-			console.log( functionConstraints[funcName]);
+			// console.log( functionConstraints[funcName]);
 
 		}
 	});
