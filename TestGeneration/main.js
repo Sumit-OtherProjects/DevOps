@@ -80,7 +80,7 @@ function initalizeParams(constraints)
 	for (var i =0; i < constraints.params.length; i++ )
 	{
 		var paramName = constraints.params[i];
-		params[paramName] = '\'\'';
+		params[paramName] = [];
 	}
 	return params;	
 }
@@ -93,7 +93,7 @@ function fillParams(constraints,params,property)
 		var constraint = constraints[c];
 		if( params.hasOwnProperty( constraint.ident ) )
 		{
-			params[constraint.ident] = constraint[property];
+			params[constraint.ident].push(constraint[property]);
 		}
 	}
 }
@@ -123,6 +123,25 @@ function createPermutations(args, altargs) {
 	return result;
 }
 
+function createCombinations(args, start, temp, result) {
+	if (start == args.length) {
+		// console.log(temp);
+		result.push(temp);
+	}
+	else {
+		var temp2 = temp.slice();
+		if (args[start].length == 0) {
+			temp2[start] = '\'\'';
+			createCombinations(args, start+1, temp2, result);
+		}
+		for(var i = 0; i < args[start].length; i++) {
+			temp2 = temp.slice();
+			temp2[start] = args[start][i];
+			createCombinations(args, start+1, temp2, result);
+		}
+	}
+}
+
 function generateTestCases()
 {
 
@@ -142,15 +161,15 @@ function generateTestCases()
 		var fileWithContent = _.some(constraints, {kind: 'fileWithContent' });
 		var pathExists      = _.some(constraints, {kind: 'fileExists' });
 
-		fillParams(constraints,params,"value")
-		fillParams(constraints,altparams,"altvalue")
+		fillParams(constraints,params,"value");
+		fillParams(constraints,altparams,"altvalue");
 		
 		//console.log("ALT",altparams)
 		//console.log("P",params)
 
 		// Prepare function arguments.
 		var args = Object.keys(params).map( function(k) {return params[k]; }).join(",");
-		var altargs = Object.keys(altparams).map( function(k) {return altparams[k]; }).join(",");
+		// var altargs = Object.keys(altparams).map( function(k) {return altparams[k]; }).join(",");
 		
 		if( pathExists || fileWithContent )
 		{
@@ -162,7 +181,7 @@ function generateTestCases()
 		}
 		else
 		{
-
+			fillParams(constraints, params, "altvalue");
 			// console.log( altargs )
 			// Emit simple test case.
 			// TODO: write logic to generate different permutations of argument values 
@@ -172,7 +191,11 @@ function generateTestCases()
 			// console.log(Object.values(altparams));
 			// content += "subject.{0}({1});\n".format(funcName, altargs );
 
-			combinations = createPermutations(Object.values(params), Object.values(altparams));
+			combinations = []
+			createCombinations(Object.values(params), 0, Array(Object.values(params).length), combinations);
+			// console.log(Object.values(params));
+			// console.log(combinations);
+			// combinations = createPermutations(Object.values(params), Object.values(altparams));
 			for (var i = 0; i < combinations.length; i++) {
 				content += "subject.{0}({1});\n".format(funcName, combinations[i]);
 			}
@@ -263,8 +286,10 @@ function constraints(filePath)
 					else if (child.left.type != 'Identifier') {
 						var expression = buf.substring(child.range[0], child.range[1]);
 						var rightHand = buf.substring(child.right.range[0], child.right.range[1])
+						var lend = expression.indexOf('.');
+						var lparamName = expression.substring(0, lend);
 
-						if(expression.includes('indexOf')){
+						if(expression.includes('indexOf') && params.indexOf( lparamName ) > -1){
 							var text = "'";
 							var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 						  
@@ -277,14 +302,14 @@ function constraints(filePath)
 							// console.log("non integer expression", text, expression);
 							var altvalue = text + "a" + "'";
 							text += "'"
-							console.log(funcName);
+							// console.log(child.left);
 							console.log(text);
 							console.log(altvalue);
 
 							functionConstraints[funcName].constraints.push( 
 								new Constraint(
 								{
-									ident: child.left.name,
+									ident: lparamName,
 									value: text,
 									altvalue: altvalue,
 									funcName: funcName,
