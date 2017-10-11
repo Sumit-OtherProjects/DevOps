@@ -36,21 +36,72 @@ subject.weird(6,1,43,"strict");
 subject.weird(6,1,43,'werw');
 subject.weird(6,1,43,"stricta");
 subject.weird(6,1,43,'werwa');
-mock({"path/fileExists":{},"pathContent":{"file1":"text content"}});
-	subject.fileTest('path/fileExists','path/fileExists','pathContent/file1');
+mock({"path/fileExists":{"file1.txt":"text from file1"},"path/emptyDir":{},"pathContent":{"file1.txt":"text content","emptyFile.txt":""}});
+	subject.fileTest('path/fileExists','pathContent/file1.txt');
 mock.restore();
-mock({"pathContent":{"file1":"text content"}});
-	subject.fileTest('path/fileExists','path/fileExists','pathContent/file1');
+
+mock({"pathContent":{"file1.txt":"text content","emptyFile.txt":""}});
+	subject.fileTest('path/fileExists','pathContent/file1.txt');
 mock.restore();
-mock({"path/fileExists":{}});
-	subject.fileTest('path/fileExists','path/fileExists','pathContent/file1');
+
+mock({"path/fileExists":{"file1.txt":"text from file1"},"path/emptyDir":{}});
+	subject.fileTest('path/fileExists','pathContent/file1.txt');
 mock.restore();
+
 mock({});
-	subject.fileTest('path/fileExists','path/fileExists','pathContent/file1');
+	subject.fileTest('path/fileExists','pathContent/file1.txt');
 mock.restore();
+
+mock({"path/fileExists":{"file1.txt":"text from file1"},"path/emptyDir":{},"pathContent":{"file1.txt":"text content","emptyFile.txt":""}});
+	subject.fileTest('path/fileExists','pathContent/emptyFile.txt');
+mock.restore();
+
+mock({"pathContent":{"file1.txt":"text content","emptyFile.txt":""}});
+	subject.fileTest('path/fileExists','pathContent/emptyFile.txt');
+mock.restore();
+
+mock({"path/fileExists":{"file1.txt":"text from file1"},"path/emptyDir":{}});
+	subject.fileTest('path/fileExists','pathContent/emptyFile.txt');
+mock.restore();
+
+mock({});
+	subject.fileTest('path/fileExists','pathContent/emptyFile.txt');
+mock.restore();
+
+mock({"path/fileExists":{"file1.txt":"text from file1"},"path/emptyDir":{},"pathContent":{"file1.txt":"text content","emptyFile.txt":""}});
+	subject.fileTest('path/emptyDir','pathContent/file1.txt');
+mock.restore();
+
+mock({"pathContent":{"file1.txt":"text content","emptyFile.txt":""}});
+	subject.fileTest('path/emptyDir','pathContent/file1.txt');
+mock.restore();
+
+mock({"path/fileExists":{"file1.txt":"text from file1"},"path/emptyDir":{}});
+	subject.fileTest('path/emptyDir','pathContent/file1.txt');
+mock.restore();
+
+mock({});
+	subject.fileTest('path/emptyDir','pathContent/file1.txt');
+mock.restore();
+
+mock({"path/fileExists":{"file1.txt":"text from file1"},"path/emptyDir":{},"pathContent":{"file1.txt":"text content","emptyFile.txt":""}});
+	subject.fileTest('path/emptyDir','pathContent/emptyFile.txt');
+mock.restore();
+
+mock({"pathContent":{"file1.txt":"text content","emptyFile.txt":""}});
+	subject.fileTest('path/emptyDir','pathContent/emptyFile.txt');
+mock.restore();
+
+mock({"path/fileExists":{"file1.txt":"text from file1"},"path/emptyDir":{}});
+	subject.fileTest('path/emptyDir','pathContent/emptyFile.txt');
+mock.restore();
+
+mock({});
+	subject.fileTest('path/emptyDir','pathContent/emptyFile.txt');
+mock.restore();
+
 subject.normalize('');
 subject.format('','',undefined);
-subject.format('','',{});
 subject.format('','',{});
 subject.format('','',{"normalize": true});
 subject.blackListNumber('');

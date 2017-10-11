@@ -61,13 +61,15 @@ var mockFileLibrary =
 {
 	pathExists:
 	{
-		'path/fileExists': {}
+		'path/fileExists': {'file1.txt':'text from file1'},
+		'path/emptyDir' : {}
 	},
 	fileWithContent:
 	{
 		pathContent: 
 		{	
-  			file1: 'text content',
+			  'file1.txt': 'text content',
+			  'emptyFile.txt' : ''
 		}
 	}
 };
@@ -80,7 +82,7 @@ function initalizeParams(constraints)
 	for (var i =0; i < constraints.params.length; i++ )
 	{
 		var paramName = constraints.params[i];
-		params[paramName] = [];
+		params[paramName] = new Set();
 	}
 	return params;	
 }
@@ -93,34 +95,9 @@ function fillParams(constraints,params,property)
 		var constraint = constraints[c];
 		if( params.hasOwnProperty( constraint.ident ) )
 		{
-			params[constraint.ident].push(constraint[property]);
+			params[constraint.ident].add(constraint[property]);
 		}
 	}
-}
-
-function createPermutations(args, altargs) {
-	result = new Array(Math.pow(2, args.length));
-	for(var i = 0; i < result.length; i++) {
-		binaryStr = i.toString(2);
-		
-		if (binaryStr.length < args.length) {
-			binaryStr = Array(args.length - binaryStr.length+1).join("0") + binaryStr;
-		}
-		temp = Array(args.length);
-		
-		for (var j = 0; j < binaryStr.length; j++) {
-			ind = parseInt(binaryStr.charAt(j))
-			
-			if (ind == 0) {
-				temp[j] = args[j];
-			}
-			else {
-				temp[j] = altargs[j];
-			}
-		}
-		result[i] = temp;
-	}
-	return result;
 }
 
 function createCombinations(args, start, temp, result) {
@@ -140,6 +117,15 @@ function createCombinations(args, start, temp, result) {
 			createCombinations(args, start+1, temp2, result);
 		}
 	}
+}
+
+function convertSetsToArrays(sets) {
+	result = [];
+	for (var i = 0; i < sets.length; i++) {
+		// console.log(sets[i]);
+		result.push(Array.from(sets[i]));
+	}
+	return result;
 }
 
 function generateTestCases()
@@ -162,26 +148,38 @@ function generateTestCases()
 		var pathExists      = _.some(constraints, {kind: 'fileExists' });
 
 		fillParams(constraints,params,"value");
-		fillParams(constraints,altparams,"altvalue");
+		fillParams(constraints,params,"altvalue");
 		
 		//console.log("ALT",altparams)
 		//console.log("P",params)
 
 		// Prepare function arguments.
-		var args = Object.keys(params).map( function(k) {return params[k]; }).join(",");
+		// console.log(Object.keys(params).map( function(k) {return params[k]; }))
+		arrayParams = convertSetsToArrays(Object.keys(params).map( function(k) {return params[k]; }))
+		// console.log(arrayParams);
+		
+		// console.log(params);
+
 		// var altargs = Object.keys(altparams).map( function(k) {return altparams[k]; }).join(",");
 		
 		if( pathExists || fileWithContent )
 		{
-			content += generateMockFsTestCases(pathExists,fileWithContent,funcName, args);
-			// Bonus...generate constraint variations test cases....
-			content += generateMockFsTestCases(!pathExists,fileWithContent,funcName, args);
-			content += generateMockFsTestCases(pathExists,!fileWithContent,funcName, args);
-			content += generateMockFsTestCases(!pathExists,!fileWithContent,funcName, args);
+			combinations = []
+			createCombinations(arrayParams, 0, Array(arrayParams.length), combinations);
+
+			for (var i = 0; i < combinations.length; i++) {
+				var args = combinations[i];
+				content += generateMockFsTestCases(pathExists,fileWithContent,funcName, args);
+				// Bonus...generate constraint variations test cases....
+				content += generateMockFsTestCases(!pathExists,fileWithContent,funcName, args);
+				content += generateMockFsTestCases(pathExists,!fileWithContent,funcName, args);
+				content += generateMockFsTestCases(!pathExists,!fileWithContent,funcName, args);
+			}
+			
 		}
 		else
 		{
-			fillParams(constraints, params, "altvalue");
+			// fillParams(constraints, params, "altvalue");
 			// console.log( altargs )
 			// Emit simple test case.
 			// TODO: write logic to generate different permutations of argument values 
@@ -192,7 +190,9 @@ function generateTestCases()
 			// content += "subject.{0}({1});\n".format(funcName, altargs );
 
 			combinations = [];
-			createCombinations(Object.values(params), 0, Array(Object.values(params).length), combinations);
+			arrayParams = convertSetsToArrays(Object.values(params))
+			// console.log(Object.values(params))
+			createCombinations(arrayParams, 0, Array(arrayParams.length), combinations);
 			// console.log(Object.values(params));
 			// console.log(combinations);
 			// combinations = createPermutations(Object.values(params), Object.values(altparams));
@@ -229,7 +229,7 @@ function generateMockFsTestCases (pathExists,fileWithContent,funcName,args)
 	");\n";
 
 	testCase += "\tsubject.{0}({1});\n".format(funcName, args );
-	testCase+="mock.restore();\n";
+	testCase+="mock.restore();\n\n";
 	return testCase;
 }
 
@@ -407,7 +407,8 @@ function constraints(filePath)
 							new Constraint(
 							{
 								ident: params[p],
-								value:  "'pathContent/file1'",
+								value:  "'pathContent/file1.txt'",
+								altvalue: "'pathContent/emptyFile.txt'",
 								funcName: funcName,
 								kind: "fileWithContent",
 								operator : child.operator,
@@ -419,7 +420,7 @@ function constraints(filePath)
 
 				if( child.type == "CallExpression" &&
 					 child.callee.property &&
-					 child.callee.property.name =="existsSync")
+					 child.callee.property.name =="readdirSync")
 				{
 					for( var p =0; p < params.length; p++ )
 					{
@@ -431,6 +432,7 @@ function constraints(filePath)
 								ident: params[p],
 								// A fake path to a file
 								value:  "'path/fileExists'",
+								altvalue: "'path/emptyDir'",
 								funcName: funcName,
 								kind: "fileExists",
 								operator : child.operator,
