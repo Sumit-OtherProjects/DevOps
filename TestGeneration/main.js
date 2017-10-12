@@ -13,7 +13,7 @@ function main()
 
 	if( args.length == 0 )
 	{
-		args = ["subject.js"];
+		args = ["mystery.js"];
 	}
 	var filePath = args[0];
 
@@ -131,7 +131,7 @@ function convertSetsToArrays(sets) {
 function generateTestCases()
 {
 
-	var content = "var subject = require('./subject.js')\nvar mock = require('mock-fs');\n";
+	var content = "var subject = require('./mystery.js')\nvar mock = require('mock-fs');\n";
 	
 	for ( var funcName in functionConstraints )
 	{
@@ -179,23 +179,9 @@ function generateTestCases()
 		}
 		else
 		{
-			// fillParams(constraints, params, "altvalue");
-			// console.log( altargs )
-			// Emit simple test case.
-			// TODO: write logic to generate different permutations of argument values 
-			// This should increase coverage significantly
-			// content += "subject.{0}({1});\n".format(funcName, args );
-			// console.log(Object.values(params));
-			// console.log(Object.values(altparams));
-			// content += "subject.{0}({1});\n".format(funcName, altargs );
-
 			combinations = [];
 			arrayParams = convertSetsToArrays(Object.values(params))
-			// console.log(Object.values(params))
 			createCombinations(arrayParams, 0, Array(arrayParams.length), combinations);
-			// console.log(Object.values(params));
-			// console.log(combinations);
-			// combinations = createPermutations(Object.values(params), Object.values(altparams));
 			for (var i = 0; i < combinations.length; i++) {
 				content += "subject.{0}({1});\n".format(funcName, combinations[i]);
 			}
@@ -301,12 +287,8 @@ function constraints(filePath)
 							var l = expression.indexOf(')');
 							var start = expression.indexOf('(')
 							text += expression.substring(start+2, l-1);
-							// console.log("non integer expression", text, expression);
 							var altvalue = text + "a" + "'";
 							text += "'"
-							// console.log(child.left);
-							console.log(text);
-							console.log(altvalue);
 
 							functionConstraints[funcName].constraints.push( 
 								new Constraint(
@@ -322,9 +304,68 @@ function constraints(filePath)
 						}
 						
 					}
+					else if (child.left.type == 'Identifier' && params.indexOf( child.left.name ) == -1) {
+						if (child.right.type == "Literal") {
+							var param_map = localVariablesNeeded[child.left.name];;
+							while (true) {
+								ptemp = "";
+								if (param_map.hasOwnProperty('value')) {
+									break;
+								}
+								else if (param_map.hasOwnProperty('object')) {
+									break;
+								}
+								else if (param_map.hasOwnProperty('callee')) {
+									var ind = param_map['callee'].indexOf('.');
+									if (ind == -1) {
+										var pptemp = ""
+										for (var tt = 0; tt < param_map['arguments'].length; tt++) {
+											var c_arg_name = param_map['arguments'][tt]
+											if (c_arg_name.hasOwnProperty('Identifier')) {
+												pptemp = c_arg_name['Identifier'];
+											}
+										}
+										ptemp = pptemp;
+									}
+									else 
+										ptemp = param_map['callee'].substring(0, ind);
+								}
+								else {
+									break;
+								}
+
+								if (params.indexOf(ptemp) > -1) {
+									break;
+								}
+								
+								if (localVariablesNeeded.hasOwnProperty(ptemp)) {
+									param_map = localVariablesNeeded[ptemp];
+									
+								}
+								else {
+									break;
+								}
+							}
+
+							if (param_map != "" && param_map.hasOwnProperty('callee')) {
+								rval = child.right.value;
+								functionConstraints[funcName].constraints.push( 
+									new Constraint(
+									{
+										ident: ptemp,
+										value: "\'" + rval + "\'",
+										altvalue: "\'123" + rval + "\'",
+										funcName: funcName,
+										kind: "integer",
+										operator : child.operator,
+										expression: expression
+									}));
+							}
+						}
+					}
 				}
 
-				if( child.type === 'BinaryExpression' && child.operator == "<" )
+				if( child.type === 'BinaryExpression' && (child.operator == "<" || child.operator == ">"))
 				{
 					if( child.left.type == 'Identifier' && params.indexOf( child.left.name ) > -1)
 					{
@@ -344,27 +385,31 @@ function constraints(filePath)
 								expression: expression
 							}));
 					}
-				}
-
-				if( child.type === 'BinaryExpression' && child.operator == ">" )
-				{
-					if( child.left.type == 'Identifier' && params.indexOf( child.left.name ) > -1)
-					{
-						// get expression from original source code:
-						var expression = buf.substring(child.range[0], child.range[1]);
-						var rightHand = buf.substring(child.right.range[0], child.right.range[1])
-
-						functionConstraints[funcName].constraints.push( 
-							new Constraint(
-							{
-								ident: child.left.name,
-								value: parseInt(rightHand) + 1,
-								altvalue: parseInt(rightHand) -1,
-								funcName: funcName,
-								kind: "integer",
-								operator : child.operator,
-								expression: expression
-							}));
+					else if (child.left.type == 'Identifier' && params.indexOf( child.left.name ) == -1) {
+						if (localVariablesNeeded.hasOwnProperty(child.left.name)) {
+							var lmap = localVariablesNeeded[child.left.name];
+							if (child.right.type == 'Identifier' && params.indexOf( child.right.name ) == -1) {
+								if (localVariablesNeeded.hasOwnProperty(child.left.name)) {
+									var rmap = localVariablesNeeded[child.right.name];
+									if (rmap.hasOwnProperty('object')) {
+										var rparam = rmap['object'];
+										if (params.indexOf(rparam) > -1 && rmap['property'] == 'length') {
+											functionConstraints[funcName].constraints.push( 
+												new Constraint(
+												{
+													ident: rparam,
+													value: '"123456789"',
+													altvalue: '""',
+													funcName: funcName,
+													kind: "string",
+													operator : child.operator,
+													expression: expression
+												}));
+										}
+									}
+								}
+							}
+						}
 					}
 				}
 
@@ -397,73 +442,71 @@ function constraints(filePath)
 					}
 				}
 
-				if( child.type == "CallExpression" && 
-					 child.callee.property &&
-					 child.callee.property.name =="readFileSync" )
-				{
-					for( var p =0; p < params.length; p++ )
-					{
-						if( child.arguments[0].name == params[p] )
-						{
-							functionConstraints[funcName].constraints.push( 
-							new Constraint(
-							{
-								ident: params[p],
-								value:  "'pathContent/file1.txt'",
-								altvalue: "'pathContent/emptyFile.txt'",
-								funcName: funcName,
-								kind: "fileWithContent",
-								operator : child.operator,
-								expression: expression
-							}));
+				if( child.type == "CallExpression" && child.callee.property) {
+					var v1, v2;
+					var vkind = "";
+					if (child.callee.property.name == "readFileSync") {
+						v1 =  "'pathContent/file1.txt'";
+						v2 = "'pathContent/emptyFile.txt'";
+						vkind = "fileWithContent";
+					}
+					else if (child.callee.property.name == "readdirSync") {
+						v1 =  "'path/fileExists'";
+						v2 =  "'path/emptyDir'";
+						vkind = "fileExists";
+					}
+
+					if (vkind != "") {
+						for( var p =0; p < params.length; p++ ) {
+							if( child.arguments[0].name == params[p] ) {
+								functionConstraints[funcName].constraints.push( 
+								new Constraint(
+								{
+									ident: params[p],
+									value:  v1,
+									altvalue: v2,
+									funcName: funcName,
+									kind: vkind,
+									operator : child.operator,
+									expression: expression
+								}));
+							}
 						}
 					}
 				}
 
-				if( child.type == "CallExpression" &&
-					 child.callee.property &&
-					 child.callee.property.name =="readdirSync")
-				{
-					for( var p =0; p < params.length; p++ )
-					{
-						if( child.arguments[0].name == params[p] )
-						{
-							functionConstraints[funcName].constraints.push( 
-							new Constraint(
-							{
-								ident: params[p],
-								// A fake path to a file
-								value:  "'path/fileExists'",
-								altvalue: "'path/emptyDir'",
-								funcName: funcName,
-								kind: "fileExists",
-								operator : child.operator,
-								expression: expression
-							}));
+				if (child.type == "VariableDeclarator") {
+					localVariablesNeeded[child.id.name] = {};
+					if (child.init.type == "Literal") {
+						localVariablesNeeded[child.id.name]['value'] = child.init.value;
+					}
+					else if (child.init.type == "MemberExpression") {
+						localVariablesNeeded[child.id.name]['object'] = child.init.object.name;
+						localVariablesNeeded[child.id.name]['property'] = child.init.property.name;
+					}
+					else if (child.init.type == "CallExpression") {
+						if (child.init.callee.type == 'Identifier')
+							localVariablesNeeded[child.id.name]['callee'] = child.init.callee.name;
+						else if (child.init.callee.type == 'MemberExpression') {
+							localVariablesNeeded[child.id.name]['callee'] = child.init.callee.object.name + "." + child.init.callee.property.name;
+						}
+						
+						cargs = child.init.arguments;
+						localVariablesNeeded[child.id.name]['arguments'] = []
+						for (var t = 0; t < cargs.length; t++ ) {
+							var a = cargs[t];
+							var temp = {};
+							if (a.hasOwnProperty('name'))
+								temp[a.type] = a.name;
+							else if (a.hasOwnProperty('value'))
+								temp[a.type] = a.value;
+							localVariablesNeeded[child.id.name]['arguments'].push(temp);
 						}
 					}
 				}
-
-				// if (child.type == "VariableDeclaration") {
-				// 	localVariablesNeeded[child.id.name] = {};
-				// 	if (child.init.type == "Literal") {
-				// 		localVariablesNeeded[child.id.name]['value'] = child.init.value;
-				// 	}
-				// 	else if (child.init.type == "MemberExpression") {
-				// 		localVariablesNeeded[child.id.name]['object'] = child.init.object.name;
-				// 		localVariablesNeeded[child.id.name]['property'] = child.init.property.name;
-				// 	}
-				// }
-
-				// if (child.type == "ForStatement") {
-				// 	if (child.test.type == "BinaryExpression") {
-				// 		if (child.test.operator == '<') {
-				// 			if (child.)
-				// 		}
-				// 	}
-				// }
-
 			});
+
+			// console.log(localVariablesNeeded);
 
 			// console.log( functionConstraints[funcName]);
 
