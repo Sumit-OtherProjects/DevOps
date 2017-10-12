@@ -1,103 +1,103 @@
-var subject = require('./mystery.js')
+var subject = require('./subject.js')
 var mock = require('mock-fs');
-subject.inc(-101,77);
-subject.inc(-101,78);
-subject.inc(-99,77);
-subject.inc(-99,78);
-subject.weird(86,69,41,"strictly");
-subject.weird(86,69,41,'bob');
-subject.weird(86,69,41,"strictlya");
-subject.weird(86,69,41,'boba');
-subject.weird(86,69,43,"strictly");
-subject.weird(86,69,43,'bob');
-subject.weird(86,69,43,"strictlya");
-subject.weird(86,69,43,'boba');
-subject.weird(86,71,41,"strictly");
-subject.weird(86,71,41,'bob');
-subject.weird(86,71,41,"strictlya");
-subject.weird(86,71,41,'boba');
-subject.weird(86,71,43,"strictly");
-subject.weird(86,71,43,'bob');
-subject.weird(86,71,43,"strictlya");
-subject.weird(86,71,43,'boba');
-subject.weird(88,69,41,"strictly");
-subject.weird(88,69,41,'bob');
-subject.weird(88,69,41,"strictlya");
-subject.weird(88,69,41,'boba');
-subject.weird(88,69,43,"strictly");
-subject.weird(88,69,43,'bob');
-subject.weird(88,69,43,"strictlya");
-subject.weird(88,69,43,'boba');
-subject.weird(88,71,41,"strictly");
-subject.weird(88,71,41,'bob');
-subject.weird(88,71,41,"strictlya");
-subject.weird(88,71,41,'boba');
-subject.weird(88,71,43,"strictly");
-subject.weird(88,71,43,'bob');
-subject.weird(88,71,43,"strictlya");
-subject.weird(88,71,43,'boba');
+subject.inc(-1,undefined);
+subject.inc(-1,false);
+subject.inc(1,undefined);
+subject.inc(1,false);
+subject.weird(6,-1,41,"strict");
+subject.weird(6,-1,41,'werw');
+subject.weird(6,-1,41,"stricta");
+subject.weird(6,-1,41,'werwa');
+subject.weird(6,-1,43,"strict");
+subject.weird(6,-1,43,'werw');
+subject.weird(6,-1,43,"stricta");
+subject.weird(6,-1,43,'werwa');
+subject.weird(6,1,41,"strict");
+subject.weird(6,1,41,'werw');
+subject.weird(6,1,41,"stricta");
+subject.weird(6,1,41,'werwa');
+subject.weird(6,1,43,"strict");
+subject.weird(6,1,43,'werw');
+subject.weird(6,1,43,"stricta");
+subject.weird(6,1,43,'werwa');
+subject.weird(8,-1,41,"strict");
+subject.weird(8,-1,41,'werw');
+subject.weird(8,-1,41,"stricta");
+subject.weird(8,-1,41,'werwa');
+subject.weird(8,-1,43,"strict");
+subject.weird(8,-1,43,'werw');
+subject.weird(8,-1,43,"stricta");
+subject.weird(8,-1,43,'werwa');
+subject.weird(8,1,41,"strict");
+subject.weird(8,1,41,'werw');
+subject.weird(8,1,41,"stricta");
+subject.weird(8,1,41,'werwa');
+subject.weird(8,1,43,"strict");
+subject.weird(8,1,43,'werw');
+subject.weird(8,1,43,"stricta");
+subject.weird(8,1,43,'werwa');
 mock({"path/fileExists":{"file1.txt":"text from file1"},"path/emptyDir":{},"pathContent":{"file1.txt":"text content","emptyFile.txt":""}});
-	subject.fileTest('pathContent/file1.txt','path/fileExists');
+	subject.fileTest('path/fileExists','pathContent/file1.txt');
 mock.restore();
 
 mock({"pathContent":{"file1.txt":"text content","emptyFile.txt":""}});
-	subject.fileTest('pathContent/file1.txt','path/fileExists');
+	subject.fileTest('path/fileExists','pathContent/file1.txt');
 mock.restore();
 
 mock({"path/fileExists":{"file1.txt":"text from file1"},"path/emptyDir":{}});
-	subject.fileTest('pathContent/file1.txt','path/fileExists');
+	subject.fileTest('path/fileExists','pathContent/file1.txt');
 mock.restore();
 
 mock({});
-	subject.fileTest('pathContent/file1.txt','path/fileExists');
+	subject.fileTest('path/fileExists','pathContent/file1.txt');
 mock.restore();
 
 mock({"path/fileExists":{"file1.txt":"text from file1"},"path/emptyDir":{},"pathContent":{"file1.txt":"text content","emptyFile.txt":""}});
-	subject.fileTest('pathContent/file1.txt','path/emptyDir');
+	subject.fileTest('path/fileExists','pathContent/emptyFile.txt');
 mock.restore();
 
 mock({"pathContent":{"file1.txt":"text content","emptyFile.txt":""}});
-	subject.fileTest('pathContent/file1.txt','path/emptyDir');
+	subject.fileTest('path/fileExists','pathContent/emptyFile.txt');
 mock.restore();
 
 mock({"path/fileExists":{"file1.txt":"text from file1"},"path/emptyDir":{}});
-	subject.fileTest('pathContent/file1.txt','path/emptyDir');
+	subject.fileTest('path/fileExists','pathContent/emptyFile.txt');
 mock.restore();
 
 mock({});
-	subject.fileTest('pathContent/file1.txt','path/emptyDir');
+	subject.fileTest('path/fileExists','pathContent/emptyFile.txt');
 mock.restore();
 
 mock({"path/fileExists":{"file1.txt":"text from file1"},"path/emptyDir":{},"pathContent":{"file1.txt":"text content","emptyFile.txt":""}});
-	subject.fileTest('pathContent/emptyFile.txt','path/fileExists');
+	subject.fileTest('path/emptyDir','pathContent/file1.txt');
 mock.restore();
 
 mock({"pathContent":{"file1.txt":"text content","emptyFile.txt":""}});
-	subject.fileTest('pathContent/emptyFile.txt','path/fileExists');
+	subject.fileTest('path/emptyDir','pathContent/file1.txt');
 mock.restore();
 
 mock({"path/fileExists":{"file1.txt":"text from file1"},"path/emptyDir":{}});
-	subject.fileTest('pathContent/emptyFile.txt','path/fileExists');
+	subject.fileTest('path/emptyDir','pathContent/file1.txt');
 mock.restore();
 
 mock({});
-	subject.fileTest('pathContent/emptyFile.txt','path/fileExists');
+	subject.fileTest('path/emptyDir','pathContent/file1.txt');
 mock.restore();
 
 mock({"path/fileExists":{"file1.txt":"text from file1"},"path/emptyDir":{},"pathContent":{"file1.txt":"text content","emptyFile.txt":""}});
-	subject.fileTest('pathContent/emptyFile.txt','path/emptyDir');
+	subject.fileTest('path/emptyDir','pathContent/emptyFile.txt');
 mock.restore();
 
 mock({"pathContent":{"file1.txt":"text content","emptyFile.txt":""}});
-	subject.fileTest('pathContent/emptyFile.txt','path/emptyDir');
+	subject.fileTest('path/emptyDir','pathContent/emptyFile.txt');
 mock.restore();
 
 mock({"path/fileExists":{"file1.txt":"text from file1"},"path/emptyDir":{}});
-	subject.fileTest('pathContent/emptyFile.txt','path/emptyDir');
+	subject.fileTest('path/emptyDir','pathContent/emptyFile.txt');
 mock.restore();
 
 mock({});
-	subject.fileTest('pathContent/emptyFile.txt','path/emptyDir');
+	subject.fileTest('path/emptyDir','pathContent/emptyFile.txt');
 mock.restore();
 
 subject.normalize('');
@@ -107,4 +107,5 @@ subject.format("123456789",'',{"normalize": true});
 subject.format("",'',undefined);
 subject.format("",'',{});
 subject.format("",'',{"normalize": true});
-subject.blackListNumber('');
+subject.blackListNumber('212');
+subject.blackListNumber('123212');

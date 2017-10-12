@@ -13,7 +13,7 @@ function main()
 
 	if( args.length == 0 )
 	{
-		args = ["mystery.js"];
+		args = ["subject.js"];
 	}
 	var filePath = args[0];
 
@@ -131,7 +131,7 @@ function convertSetsToArrays(sets) {
 function generateTestCases()
 {
 
-	var content = "var subject = require('./mystery.js')\nvar mock = require('mock-fs');\n";
+	var content = "var subject = require('./subject.js')\nvar mock = require('mock-fs');\n";
 	
 	for ( var funcName in functionConstraints )
 	{
@@ -150,17 +150,8 @@ function generateTestCases()
 		fillParams(constraints,params,"value");
 		fillParams(constraints,params,"altvalue");
 		
-		//console.log("ALT",altparams)
-		//console.log("P",params)
-
 		// Prepare function arguments.
-		// console.log(Object.keys(params).map( function(k) {return params[k]; }))
 		arrayParams = convertSetsToArrays(Object.keys(params).map( function(k) {return params[k]; }))
-		// console.log(arrayParams);
-		
-		// console.log(params);
-
-		// var altargs = Object.keys(altparams).map( function(k) {return altparams[k]; }).join(",");
 		
 		if( pathExists || fileWithContent )
 		{
@@ -240,7 +231,7 @@ function constraints(filePath)
 			// Check for expressions using argument.
 			traverse(node, function(child)
 			{
-				if( child.type === 'BinaryExpression' && child.operator == "==")
+				if( child.type === 'BinaryExpression' && (child.operator == "==" || child.operator == "!="))
 				{
 					if( child.left.type == 'Identifier' && params.indexOf( child.left.name ) > -1)
 					{
