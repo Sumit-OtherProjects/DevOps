@@ -1,3 +1,4 @@
 **/*.retry
 **/*.log
+node_modules/
 .vscode
