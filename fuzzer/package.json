@@ -1,0 +1,18 @@
+{
+  "name": "fuzzer",
+  "version": "1.0.0",
+  "description": "This application will make random modifications on a random subset of list of files, validate those changes, commit them, run a jenkins job 'n' times and in case of build failure revert those changes",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.ncsu.edu/akshetty/devops-milestone2.git"
+  },
+  "author": "Atit Shetty",
+  "license": "MIT",
+  "dependencies": {
+    "random-js": "^1.0.8"
+  }
+}
