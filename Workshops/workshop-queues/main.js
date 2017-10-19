@@ -33,33 +33,30 @@ app.use(function(req, res, next)
 });
 
 
-// app.post('/upload',[ multer({ dest: './uploads/'}), function(req, res){
+app.post('/upload',[ multer({ dest: './uploads/'}), function(req, res){
 //    console.log(req.body) // form fields
 //    console.log(req.files) // form files
 
-//    if( req.files.image )
-//    {
-// 	   fs.readFile( req.files.image.path, function (err, data) {
-// 	  		if (err) throw err;
-// 	  		var img = new Buffer(data).toString('base64');
-// 	  		console.log(img);
-// 		});
-// 	}
+   if( req.files.image )
+   {
+	   fs.readFile( req.files.image.path, function (err, data) {
+			  var img = new Buffer(data).toString('base64');
+			  client.lpush("cat_images", img);
+		});
+		res.writeHead(200, {'content-type':'text/html'});
+		res.write("<h3>Image Saved</h3>");
+	}
 
-//    res.status(204).end()
-// }]);
+   res.status(204).end()
+}]);
 
-// app.get('/meow', function(req, res) {
-// 	{
-// 		if (err) throw err
-// 		res.writeHead(200, {'content-type':'text/html'});
-// 		items.forEach(function (imagedata) 
-// 		{
-//    		res.write("<h1>\n<img src='data:my_pic.jpg;base64,"+imagedata+"'/>");
-// 		});
-//    	res.end();
-// 	}
-// })
+app.get('/meow', function(err, res) {
+	client.lpop("cat_images", function(err, value){
+		res.writeHead(200, {'content-type':'text/html'});
+		res.write("<h1>\n<img src='data:my_pic.jpg;base64,"+value+"'/>");
+		res.end();
+	})
+})
 
 app.get('/set', function(req, res) {
 	// console.log(req.route.path);
@@ -67,7 +64,7 @@ app.get('/set', function(req, res) {
 		client.expire("key", 10, function() {
 			res.writeHead(200, {'content-type':'text/html'});
 			res.write("<h3>created a key for 10 seconds</h3>");
-			   res.end();
+			res.end();
 		});
 	});
 })
