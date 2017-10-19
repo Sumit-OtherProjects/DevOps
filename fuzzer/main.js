@@ -27,6 +27,9 @@ const read = (dir) =>
         }
     }, []);
 
+/*
+This function implements main fuzzer logic
+Throws an error if directory is not given*/
 function main(directoryPath) {
 
     var args = process.argv.slice(2);
