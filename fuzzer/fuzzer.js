@@ -3,6 +3,8 @@ const Random = require('random-js');
 const path = require('path');
 const randomizer = new Random(Random.engines.mt19937().autoSeed());
 
+
+
 var validFileExtensions = ["java"];
 
 /*
@@ -120,7 +122,5 @@ function createRandomChangesInAFile(filePath) {
 
     fs.writeFileSync(filePath, data);
 }
-
-main();
 
 exports.main = main;
