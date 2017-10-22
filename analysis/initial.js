@@ -31,6 +31,7 @@ var builders = {};
 function FunctionBuilder()
 {	
 	this.number_of_lines = 0;
+	this.sync_calls_count = 0;
 	this.StartLine = 0;
 	this.FunctionName = "";
 	// The number of parameters for functions
@@ -48,15 +49,14 @@ function FunctionBuilder()
 		   (
 		   	"{0}(): {1}\n" +
 		   	"============\n" +
-			   "SimpleCyclomaticComplexity: {2}\t" +
 				"MaxNestingDepth: {3}\t" +
-				"MaxConditions: {4}\t" +
+				"Number of Sync Calls: {4}\t" +
 				"Number of Lines of Code: {5}\t" +
 				"Parameters: {6}\n\n"
 			)
 			.format(this.FunctionName, this.StartLine,
 				     this.SimpleCyclomaticComplexity, this.MaxNestingDepth,
-			        this.MaxConditions, this.number_of_lines, this.ParameterCount)
+			        this.sync_calls_count, this.number_of_lines, this.ParameterCount)
 		);
 	}
 };
@@ -129,6 +129,18 @@ function getDepth2(node){
 	return maxDepth;
 }
 
+function getSyncCallsCount(node) {
+	count = 0;
+	traverseWithParents(node, function(child) {
+		if( child.type == "CallExpression" && child.callee.property) {
+			if (child.callee.property.name.indexOf("Sync") > -1) {
+				count += 1;
+			}
+		}
+	});
+	return count;
+}
+
 
 function complexity(filePath)
 {
@@ -146,7 +158,7 @@ function complexity(filePath)
 	// Tranverse program with a function visitor.
 	traverseWithParents(ast, function (node) 
 	{
-		if (node.type === 'FunctionDeclaration' || node.type == 'FunctionExpression') 
+		if (node.type === 'FunctionDeclaration' )//|| node.type == 'FunctionExpression') 
 		{
 			var builder = new FunctionBuilder();
 
@@ -154,7 +166,7 @@ function complexity(filePath)
 
 			builder.FunctionName = functionName(node);
 			builder.StartLine    = node.loc.start.line;
-			// builder.ParameterCount = getParamCount(node);
+			builder.sync_calls_count = getSyncCallsCount(node);
 			
 			// traverseWithParents(node, function (child) {
 			// 	if (child.type == "IfStatement" || child.type == "ForInStatement") {
@@ -176,6 +188,7 @@ function complexity(filePath)
 
 			builders[builder.FunctionName] = builder;
 		}
+
 		// else if (node.type == "CallExpression") {
 		// 	if (node.callee.name == "require") {
 		// 		fileBuilder.ImportCount++;
