@@ -1,31 +1,156 @@
 var esprima = require("esprima");
 var options = {tokens:true, tolerant: true, loc: true, range: true };
 var fs = require("fs");
+var xmlbuilder = require('xmlbuilder');
 
 function main()
 {
 	var args = process.argv.slice(2);
 
+	var dir;
 	if( args.length == 0 )
 	{
-		args = ["test_file.js"];
+		dir = './checkbox.io/server-side';
 	}
-	var filePath = args[0];
-	
-	complexity(filePath);
-
-	// Report
-	for( var node in builders )
-	{
-		var builder = builders[node];
-		builder.report();
+	else {
+		dir = args[0]
 	}
 
+	var file_list = [];
+	walkSync(dir, file_list);
+
+	// console.log(file_list);
+
+	var all_builders = {};
+
+	for (var i = 0; i < file_list.length; i++){
+  		var file = file_list[i];
+  		var builders = complexity(file);
+  		all_builders[file] = builders;
+  	}
+
+
+  	var xml_output = output_report_file(all_builders);
+
+  	fs.writeFile("./analysis_report.xml", xml_output.toString(), function(err) {
+	    if(err) {
+	        return console.log(err);
+	    }
+
+	    console.log("The file was saved!");
+	});
+
+  	// for (var builder in all_builders) {
+  	// 	for (var node in all_builders[builder]) {
+  	// 		all_builders[builder][node].report();
+  	// 	}
+  	// }
 }
 
 
+var walkSync = function(dir, filelist) {
 
-var builders = {};
+  if( dir[dir.length-1] != '/') dir=dir.concat('/')
+
+  var fs = fs || require('fs'),
+      files = fs.readdirSync(dir);
+  filelist = filelist || [];
+  files.forEach(function(file) {
+    if (fs.statSync(dir + file).isDirectory()) {
+      filelist = walkSync(dir + file + '/', filelist);
+    }
+    else {
+      if (file.endsWith('.js'))
+      	filelist.push(dir+file);
+    }
+  });
+  return filelist;
+};
+
+function output_report_file(builders) {
+	var xw = xmlbuilder.create('analysis');
+	for (var b in builders) {
+		xw = xw.ele('file');
+		xw = xw.ele('name');
+		xw = xw.txt(b);
+		xw = xw.up();
+		var builder = builders[b];
+		for (var func in builder) {
+			var s = builder[func];
+			// s.report();
+			xw = xw.ele('function');
+
+			xw = xw.ele('name');
+			xw = xw.txt(func);
+			xw = xw.up();
+
+		    xw = xw.ele('bigo');
+		    xw = xw.txt(s.MaxNestingDepth);
+		    xw = xw.up();
+
+			xw = xw.ele('lines_of_code');
+		    xw = xw.txt(s.number_of_lines);
+		    xw = xw.up();
+
+		    xw = xw.ele('number_of_sync_calls');
+		    xw = xw.txt(s.sync_calls_count);
+		    xw = xw.up();
+
+			xw = xw.ele('max_message_chain_length');
+		    xw = xw.txt(s.msg_chain_length);
+		    xw = xw.up();
+		    
+		    xw = xw.up();
+		}
+		xw = xw.up();	
+	}
+	xw = xw.end({ pretty: true });
+
+	return xw;
+}
+
+function output_report_file2(builders) {
+	var xw = new XMLWriter;
+	xw.startDocument();
+	for (var b in builders) {
+		xw.startElement('file');
+		xw.startElement('name');
+		xw.text(b);
+		xw.endElement();
+		var builder = builders[b];
+		for (var func in builder) {
+			var s = builder[func];
+			// s.report();
+			xw.startElement('function');
+
+			xw.startElement('name');
+			xw.text(func);
+			xw.endElement();
+
+		    xw.startElement('bigo');
+		    xw.text(s.MaxNestingDepth);
+		    xw.endElement();
+
+			xw.startElement('lines_of_code');
+		    xw.text(s.number_of_lines);
+		    xw.endElement();
+
+		    xw.startElement('number_of_sync_calls');
+		    xw.text(s.sync_calls_count);
+		    xw.endElement();
+
+			xw.startElement('max_message_chain_length');
+		    xw.text(s.msg_chain_length);
+		    xw.endElement();
+		    
+		    xw.endElement();
+		}
+		xw.endElement();	
+	}
+	xw.endDocument();
+
+	return xw;
+}
 
 // Represent a reusable "class" following the Builder pattern.
 function FunctionBuilder()
@@ -46,6 +171,7 @@ function FunctionBuilder()
 
 	this.report = function()
 	{
+
 		console.log(
 		   (
 		   	"{0}(): {1}\n" +
@@ -180,10 +306,7 @@ function complexity(filePath)
 	var i = 0;
 
 	// A file level-builder:
-	var fileBuilder = new FileBuilder();
-	fileBuilder.FileName = filePath;
-	fileBuilder.ImportCount = 0;
-	builders[filePath] = fileBuilder;
+	var builders = {};
 
 	// Tranverse program with a function visitor.
 	traverseWithParents(ast, function (node) 
@@ -205,6 +328,7 @@ function complexity(filePath)
 		}
 
 	});
+	return builders;
 
 }
 
@@ -234,4 +358,4 @@ if (!String.prototype.format) {
 main();
 
 
- exports.main = main;
+exports.main = main;
