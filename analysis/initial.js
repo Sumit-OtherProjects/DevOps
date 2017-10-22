@@ -106,30 +106,27 @@ function getParamCount(node){
 	return node['params'].length;
 }
 
-function getDepth(node) {
-	var depth = 0;
-	if (node.body.type == "BlockStatement") {
-		for (k in node.body.body) {
-			if (k.type == "IfStatement" || k.type == "ForInStatement") {
-				var d = getDepth(k.consequent)
-			}
-		}
+// Big O notation
+// MAX DEPTH OF FOR/WHILE LOOPS
+function getDepth2(child) {
+	if (child.type == "ForInStatement" || child.type == "ForStatement" || child.type == "WhileStatement") {
+		var d = getDepth(child.body.body);
+		return 1 + d;
 	}
+	return 0;
 }
 
-function getDepth2(node){
-	maxDepth = 0;
+function getDepth(node){
+	var maxDepth = 0;
 	traverseWithParents(node, function (child) {
-		var d = 0;
-		if (child.type == "IfStatement" || child.type == "ForInStatement") {
-			d = getDepth(child) + 1;
-		}
+		var d = getDepth2(child);
 		if (d  > maxDepth)
 			maxDepth = d;
 	});
 	return maxDepth;
 }
 
+// number of sync calls in a function
 function getSyncCallsCount(node) {
 	count = 0;
 	traverseWithParents(node, function(child) {
@@ -142,6 +139,7 @@ function getSyncCallsCount(node) {
 	return count;
 }
 
+// maximum message chain length in a function
 function getChainLength(child) {
 	if (child.type == "CallExpression") {
 		if (child.callee)
@@ -166,13 +164,14 @@ function getMessageChainLength(node) {
 		var l = getChainLength(child);
 		if (l > maxLength) {
 			maxLength = l;
-			console.log(child.loc.start.line, " to ", child.loc.end.line, ":", l)
+			// console.log(child.loc.start.line, " to ", child.loc.end.line, ":", l)
 		}
 	});
 	return maxLength;
 }
 
 
+// main function for calculating all features.
 function complexity(filePath)
 {
 	var buf = fs.readFileSync(filePath, "utf8");
@@ -199,33 +198,11 @@ function complexity(filePath)
 			builder.StartLine    = node.loc.start.line;
 			builder.sync_calls_count = getSyncCallsCount(node);
 			builder.msg_chain_length = getMessageChainLength(node);
-			
-			// traverseWithParents(node, function (child) {
-			// 	if (child.type == "IfStatement" || child.type == "ForInStatement") {
-			// 		builder.SimpleCyclomaticComplexity++;
-			// 		var temp = 0;
-			// 		traverseWithParents(child, function (child2) {
-			// 			if (builder.SimpleCyclomaticComplexity > 0) {
-			// 				if (child2.type == "LogicalExpression") 
-			// 					temp++;
-			// 			}
-			// 		});	
-			// 		if (builder.MaxConditions < temp)
-			// 			builder.MaxConditions = temp;
-			// 	}
-			// });
-			// builder.MaxConditions++;
 
-			// builder.MaxNestingDepth = getDepth(node);
+			builder.MaxNestingDepth = getDepth(node);
 
 			builders[builder.FunctionName] = builder;
 		}
-
-		// else if (node.type == "CallExpression") {
-		// 	if (node.callee.name == "require") {
-		// 		fileBuilder.ImportCount++;
-		// 	}
-		// }
 
 	});
 
