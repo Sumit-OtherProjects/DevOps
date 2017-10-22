@@ -109,49 +109,6 @@ function output_report_file(builders) {
 	return xw;
 }
 
-function output_report_file2(builders) {
-	var xw = new XMLWriter;
-	xw.startDocument();
-	for (var b in builders) {
-		xw.startElement('file');
-		xw.startElement('name');
-		xw.text(b);
-		xw.endElement();
-		var builder = builders[b];
-		for (var func in builder) {
-			var s = builder[func];
-			// s.report();
-			xw.startElement('function');
-
-			xw.startElement('name');
-			xw.text(func);
-			xw.endElement();
-
-		    xw.startElement('bigo');
-		    xw.text(s.MaxNestingDepth);
-		    xw.endElement();
-
-			xw.startElement('lines_of_code');
-		    xw.text(s.number_of_lines);
-		    xw.endElement();
-
-		    xw.startElement('number_of_sync_calls');
-		    xw.text(s.sync_calls_count);
-		    xw.endElement();
-
-			xw.startElement('max_message_chain_length');
-		    xw.text(s.msg_chain_length);
-		    xw.endElement();
-		    
-		    xw.endElement();
-		}
-		xw.endElement();	
-	}
-	xw.endDocument();
-
-	return xw;
-}
-
 // Represent a reusable "class" following the Builder pattern.
 function FunctionBuilder()
 {	
