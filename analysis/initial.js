@@ -32,6 +32,7 @@ function FunctionBuilder()
 {	
 	this.number_of_lines = 0;
 	this.sync_calls_count = 0;
+	this.msg_chain_length = 0;
 	this.StartLine = 0;
 	this.FunctionName = "";
 	// The number of parameters for functions
@@ -52,11 +53,11 @@ function FunctionBuilder()
 				"MaxNestingDepth: {3}\t" +
 				"Number of Sync Calls: {4}\t" +
 				"Number of Lines of Code: {5}\t" +
-				"Parameters: {6}\n\n"
+				"Message Chain Length: {6}\n\n"
 			)
 			.format(this.FunctionName, this.StartLine,
 				     this.SimpleCyclomaticComplexity, this.MaxNestingDepth,
-			        this.sync_calls_count, this.number_of_lines, this.ParameterCount)
+			        this.sync_calls_count, this.number_of_lines, this.msg_chain_length)
 		);
 	}
 };
@@ -141,6 +142,36 @@ function getSyncCallsCount(node) {
 	return count;
 }
 
+function getChainLength(child) {
+	if (child.type == "CallExpression") {
+		if (child.callee)
+			return getChainLength(child.callee);
+	}
+	else if (child.type == "MemberExpression" && child.object) {
+		if (child.object)
+			return 1 + getChainLength(child.object);
+		else
+			return 1;
+	}
+	else if (child.type == "Identifier")
+		return 1;
+	
+	return 0;
+}
+
+
+function getMessageChainLength(node) {
+	var maxLength = 1;
+	traverseWithParents(node, function(child) {
+		var l = getChainLength(child);
+		if (l > maxLength) {
+			maxLength = l;
+			console.log(child.loc.start.line, " to ", child.loc.end.line, ":", l)
+		}
+	});
+	return maxLength;
+}
+
 
 function complexity(filePath)
 {
@@ -167,6 +198,7 @@ function complexity(filePath)
 			builder.FunctionName = functionName(node);
 			builder.StartLine    = node.loc.start.line;
 			builder.sync_calls_count = getSyncCallsCount(node);
+			builder.msg_chain_length = getMessageChainLength(node);
 			
 			// traverseWithParents(node, function (child) {
 			// 	if (child.type == "IfStatement" || child.type == "ForInStatement") {
