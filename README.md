@@ -28,9 +28,9 @@ main.js contains the code to detect all 4 things required
 - Max Message chain length of each function 
 - Number of Sync Calls in each function
 
-For now it takes the name of the target files by hardocding them into the code.
+Takes input the src directory. Also hardcoded a default one.
+Runs the analysis on each files (for each function in each file)
+Generates an xml report.
 
 ### Things to Add
-Just give directory of server-code of checkbox.io as input and recursively find all files and run analysis for each file.
-Print out the report in a particular format. Preferably XML.
-
+Integrate with Jenkins to trigger build failure if any particular scenario is detected.
