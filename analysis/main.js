@@ -25,6 +25,7 @@ function main()
 
 	for (var i = 0; i < file_list.length; i++){
   		var file = file_list[i];
+  		console.log("Handling file: ", file);
   		var builders = complexity(file);
   		all_builders[file] = builders;
   	}
@@ -40,11 +41,42 @@ function main()
 	    console.log("The file was saved!");
 	});
 
+	if (ShouldWeFail(all_builders)) {
+		console.log("trigger build failure");
+		throw new Error("Triggering build failure");
+	}
+	process.exit(0);
   	// for (var builder in all_builders) {
   	// 	for (var node in all_builders[builder]) {
   	// 		all_builders[builder][node].report();
   	// 	}
   	// }
+}
+
+function ShouldWeFail(builders) {
+	for (var b in builders) {
+		var builder = builders[b]
+		for (var func in builder) {
+			var s = builder[func]
+			if (s.MaxNestingDepth > 3) {
+				console.log("Big O for ", func, "function in file = ", b);
+				return true;
+			}
+			else if (s.number_of_lines > 120){
+				console.log("Too many number of lines in ", func, "function in file = ", b);
+				return true
+			}
+			else if (s.number_of_sync_calls > 1){
+				console.log("More than one sync calls in ", func, "function in file = ", b);
+				return true
+			}
+			else if (s.msg_chain_length > 4){
+				console.log("Big Message chain length for ", func, "function in file = ", b);
+				return true
+			}
+		}
+	}
+	return false;
 }
 
 
@@ -57,7 +89,8 @@ var walkSync = function(dir, filelist) {
   filelist = filelist || [];
   files.forEach(function(file) {
     if (fs.statSync(dir + file).isDirectory()) {
-      filelist = walkSync(dir + file + '/', filelist);
+      if (file != 'node_modules')
+      	filelist = walkSync(dir + file + '/', filelist);
     }
     else {
       if (file.endsWith('.js'))
@@ -268,7 +301,7 @@ function complexity(filePath)
 	// Tranverse program with a function visitor.
 	traverseWithParents(ast, function (node) 
 	{
-		if (node.type === 'FunctionDeclaration' )//|| node.type == 'FunctionExpression') 
+		if (node.type === 'FunctionDeclaration' || node.type == 'FunctionExpression') 
 		{
 			var builder = new FunctionBuilder();
 
