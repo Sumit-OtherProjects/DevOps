@@ -6,9 +6,9 @@ const fuzzer = require('./fuzzer');
 
 const child_process = require('child_process');
 
-const USER = "akshetty";
+const USER = "";
 
-const PASS = "SamuraiBepop112";
+const PASS = "";
 
 const REPO = "github.ncsu.edu/akshetty/iTrust-v23.git";
 
@@ -16,7 +16,7 @@ const REMOTE = `https://${USER}:${PASS}@${REPO}`;
 
 const BRANCH = "fuzzer";
 
-const LOCALPATH = "/home/atit/fuzzingJob";
+const LOCALPATH = "";
 
 const ITRUST_V23 = "iTrust-v23";
 
@@ -30,23 +30,23 @@ const ITRUST_RELATIVE_PATH = '/iTrust-v23/iTrust/src/main/edu/ncsu/csc/itrust';
 function main() {
 
     //clone(REMOTE, LOCALPATH, BRANCH);
-    reset(GITPATH,0)
-    fuzzer.main(LOCALPATH+ITRUST_RELATIVE_PATH);
+    reset(GITPATH, 0)
+    fuzzer.main(LOCALPATH + ITRUST_RELATIVE_PATH);
 
     console.log(Array.isArray(['compile']));
 
-    var result = maven(GITPATH+"/"+ITRUST,['compile']);
+    var result = maven(GITPATH + "/" + ITRUST, ['compile']);
     console.log(result);
 
-    if(result.match(/BUILD FAILURE/)){
+    if (result.match(/BUILD FAILURE/)) {
         console.log("resetting");
         //reset to head
-        //reset(GITPATH,0); 
-    }else{
+        //reset(GITPATH,0);
+    } else {
         console.log("commit");
         //commit and push
         add(GITPATH);
-        commit(GITPATH,"Neo");
+        commit(GITPATH, "Neo");
         push(GITPATH);
     }
 
