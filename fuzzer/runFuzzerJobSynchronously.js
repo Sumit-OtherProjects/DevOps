@@ -18,12 +18,15 @@ const BRANCH = "fuzzer";
 
 const itrustPath = 'iTrust-v23/iTrust/src/main/edu/ncsu/csc/itrust';
 
-function clone(remote, local, branch) {
+function main() {
 
+}
+
+function clone(remote, local, branch) {
     fsExtra.ensureDirSync(local);
 
-    if (fs.existsSync(local + "iTrust-v23")) {
-        fsExtra.removeSync(local + "iTrust-v23");
+    if (fs.existsSync(local + "/iTrust-v23")) {
+        fsExtra.removeSync(local + "/iTrust-v23");
     }
     var result = child_process.spawnSync('git', ['clone', remote, '--branch', branch], {
         cwd: local
@@ -38,3 +41,5 @@ function clone(remote, local, branch) {
         }
     }
 }
+
+main();
