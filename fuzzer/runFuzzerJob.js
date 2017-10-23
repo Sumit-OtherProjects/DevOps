@@ -10,6 +10,8 @@ const fuzzer = require('./fuzzer');
 
 const Promise = require('bluebird');
 
+const child_process = require('child_process');
+
 const USER = "";
 
 const PASS = "";
@@ -40,17 +42,7 @@ function mutate() {
     });
 }
 
-function pullChanges() {
-    return new Promise(function(resolve, reject) {
-        git(localPath + 'iTrust-v23').pull(function(err, data) {
-            if (err) {
-                reject(false);
-            } else {
-                resolve(true);
-            }
-        });
-    });
-}
+
 
 function cloneRepo(remote, local, branch) {
 
@@ -70,8 +62,19 @@ function cloneRepo(remote, local, branch) {
 
 }
 
-function pushChanges() {
+function pullChanges() {
+    return new Promise(function(resolve, reject) {
+        git(localPath + 'iTrust-v23').pull(function(err, data) {
+            if (err) {
+                reject(false);
+            } else {
+                resolve(true);
+            }
+        });
+    });
+}
 
+function pushChanges() {
 
     return new Promise(function(resolve, reject) {
         git(localPath + 'iTrust-v23').add('./*.java').commit("Test").push('origin', 'fuzzer', function(err, data) {
@@ -82,6 +85,20 @@ function pushChanges() {
             }
         });
     });
+}
+
+function runMaven(args, path) {
+    if (!args)
+        throw new Error("args should be a valid error like ['compile']");
+
+    if (!path)
+        throw new Error("path should a valid directory path");
+
+    var compileResult = child_process.spawnSync("mvn", args, {
+        cwd: path
+    });
+
+
 }
 
 

@@ -7,11 +7,11 @@
 
       console.log("run exec sync");
 
-      syncreport = child_process.execSync('mvn compile', {
+      syncreport = child_process.spawnSync('mvn', ['compile'], {
           cwd: "C:/Users/Atit/git/temp/iTrust-v23/iTrust"
       });
 
-      console.log("sy1" + syncreport);
+      console.log("sy1" + syncreport.error);
 
       console.log("done1");
 
