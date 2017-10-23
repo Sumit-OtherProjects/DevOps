@@ -1,0 +1,44 @@
+- hosts: all
+  gather_facts: no
+
+  vars_prompt:
+    - name: username
+      prompt: "Enter remote username"
+      private: no
+    - name: jenkinspassword
+      prompt: "Enter Jenkins Admin Password"
+      private: yes
+    - name: github_username
+      prompt: "Enter NCSU github enterprise username [HTTP encoded]"
+      private: no
+    - name: github_password
+      prompt: "Enter NCSY github enterprise password [HTTP encoded]"
+      private: yes
+
+  tasks:
+    - name: Checking if job already exists.
+      shell: java -jar /home/jenkins-cli.jar -auth "{{username}}":"{{jenkinspassword}}" -s http://localhost:8080 list-jobs | grep -w itrust
+      register: check_job
+      ignore_errors: yes
+
+    - name: Deleting exisiting job
+      shell: java -jar /home/jenkins-cli.jar -auth "{{username}}":"{{jenkinspassword}}" -s http://localhost:8080 delete-job itrust
+      when: check_job.rc == 0
+
+    - name: Sending template for iTrust to Jenkins server
+      copy:
+        src: ./itrust.xml
+        dest: /tmp/itrust.xml
+
+    - name: Modifying template file
+      lineinfile:
+        path: /tmp/itrust.xml
+        regexp: 'username:password'
+        line: 'git clone https://{{github_username}}:{{github_password}}@github.ncsu.edu/engr-csc326-staff/iTrust-v23.git'
+
+    - name: Creating new job for checkbox.io
+      shell: java -jar /home/jenkins-cli.jar -auth "{{username}}":"{{jenkinspassword}}" -s http://localhost:8080 create-job itrust < /tmp/itrust.xml
+
+    - name: Installing maven
+      apt: pkg=maven state=present
+      become: yes

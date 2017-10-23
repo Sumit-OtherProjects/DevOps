@@ -1,0 +1,268 @@
+--- # A playbook to provision Jenkins server on Ubuntu 16.04
+- hosts: all
+  gather_facts: no
+
+  vars:
+    ufwports:
+      - 22 # TO allow SSH
+      - 8080 # For Jenkins
+    packages:
+      - gcc
+      - git
+      - git-core
+      - python-dev
+      - python-mysqldb
+      - libmysqlclient-dev
+      - python-setuptools
+      - mysql-server
+      - oracle-java8-installer
+      - oracle-java8-set-default
+      - maven
+      - python-software-properties
+
+  vars_prompt:
+    - name: username
+      prompt: "Enter remote username"
+      private: no
+    - name: jenkinspassword
+      prompt: "Enter Jenkins Admin Password"
+      private: yes
+
+  tasks:
+    - name: Installing python 2
+      raw: test -e /usr/bin/python || (sudo apt -y update && sudo apt install -y python-minimal)
+
+    - name: gather facts
+      setup:
+
+    - name: Adding the Jenkins Public GPG key
+      apt_key:
+        url: https://pkg.jenkins.io/debian/jenkins-ci.org.key 
+        state: present
+      become: yes
+
+    - name: Adding Jenkins to trusted sources.list
+      apt_repository: 
+        repo: deb http://pkg.jenkins.io/debian-stable binary/
+        state: present
+        update_cache: yes
+      become: yes
+
+    - name: Installing Jenkins
+      apt: pkg=jenkins state=present update_cache=yes
+      become: yes
+
+    - name: Starting Jenkins service
+      service:
+        name: jenkins
+        state: started
+      become: yes
+
+    - name: Add Oracle java apt repository key
+      apt_repository:
+        repo: 'ppa:webupd8team/java'
+      become: yes
+
+    - name: Accept Oracle java license
+      debconf: name='oracle-java8-installer' question='shared/accepted-oracle-license-v1-1' value='true' vtype='select'
+      changed_when: false
+      become: yes
+
+    - name: Installing required packages
+      apt: pkg={{packages}} state=present
+      become: yes
+
+    - name: removing case sensitivity in Sql
+      blockinfile:
+        dest: /etc/mysql/my.cnf
+        block: |
+          [mysqld]
+          lower_case_table_names = 1
+      register: mysql_case_sensitivity
+      become: yes
+
+    - name: flush priviliges mysql root user
+      shell: >
+        mysql -u root --execute "UPDATE mysql.user SET plugin = 'mysql_native_password' WHERE user = 'root'; FLUSH PRIVILEGES;"
+      become: yes
+
+    - name: restart
+      service: name=mysql state=restarted
+      become: yes
+
+
+    - name: Install Uncomplicated Firewall
+      apt: pkg=ufw state=present update_cache=yes
+      become: yes
+
+    - name: Open port 8080
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+      with_items:
+        - "{{ ufwports }}"
+      become: yes
+
+    - name: Enable ufw
+      ufw:
+        state: enabled
+        policy: deny
+      become: yes
+
+    - name: Get the jenkins-cli jarfile from the Jenkins server.
+      get_url:
+        url: "http://localhost:8080/jnlpJars/jenkins-cli.jar"
+        dest: /home/
+      register: jarfile_get
+      until: "'OK' in jarfile_get.msg or 'file already exists' in jarfile_get.msg"
+      retries: 5
+      delay: 10
+      check_mode: no
+      become: yes
+
+    - name: Getting Initial admin password
+      shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+      register: jenkinsadminpass
+      become: yes
+
+    - name: Adding mentioned user to jenkins
+      shell: echo 'jenkins.model.Jenkins.instance.securityRealm.createAccount("{{username}}", "{{jenkinspassword}}")' | java -jar /home/jenkins-cli.jar -auth admin:"{{jenkinsadminpass.stdout}}" -s http://localhost:8080/ groovy =
+
+    - name: Installing Recommended Plugins
+      shell: java -jar /home/jenkins-cli.jar -auth "{{username}}":"{{jenkinspassword}}" -s http://localhost:8080 install-plugin "{{item}}" -deploy
+      with_items:
+        - bouncycastle-api
+        - cloudbees-folder
+        - structs
+        - junit
+        - antisamy-markup-formatter
+        - pam-auth
+        - windows-slaves
+        - display-url-api
+        - mailer
+        - ldap
+        - workflow-step-api
+        - script-security
+        - scm-api
+        - workflow-api
+        - workflow-support
+        - workflow-job
+        - token-macro
+        - external-monitor-job
+        - icon-shim
+        - matrix-auth
+        - matrix-project
+        - build-timeout
+        - credentials
+        - ssh-credentials
+        - plain-credentials
+        - credentials-binding
+        - timestamper
+        - durable-task
+        - workflow-durable-task-step
+        - resource-disposer
+        - ws-cleanup
+        - ant
+        - gradle
+        - pipeline-milestone-step
+        - jquery-detached
+        - jackson2-api
+        - ace-editor
+        - workflow-scm-step
+        - workflow-cps
+        - pipeline-input-step
+        - pipeline-stage-step
+        - pipeline-graph-analysis
+        - pipeline-rest-api
+        - handlebars
+        - momentjs
+        - pipeline-stage-view
+        - pipeline-build-step
+        - pipeline-model-api
+        - pipeline-model-extensions
+        - git-client
+        - git-server
+        - workflow-cps-global-lib
+        - branch-api
+        - workflow-multibranch
+        - authentication-tokens
+        - docker-commons
+        - docker-workflow
+        - pipeline-stage-tags-metadata
+        - pipeline-model-declarative-agent
+        - workflow-basic-steps
+        - pipeline-model-definition
+        - workflow-aggregator
+        - github-api
+        - git
+        - github
+        - github-branch-source
+        - pipeline-github-lib
+        - mapdb-api
+        - subversion
+        - ssh-slaves
+        - email-ext
+        - javadoc
+        - postbuild-task
+        - jacoco
+        - test-stability
+    
+      
+    - name: Turn off Jenkins setup wizard
+      lineinfile:
+          dest: /etc/default/jenkins
+          regexp: '^JAVA_ARGS='
+          line: 'JAVA_ARGS="-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"'
+          insertbefore: '^DAEMON_ARGS='
+      notify: restart jenkins
+      become: yes
+
+    - name: Installing npm
+      apt: pkg=npm state=present update_cache=yes
+      become: yes
+
+    - name: Installing python-pip
+      apt: pkg=python-pip state=present
+      become: yes
+
+    - name: Installing boto and boto3
+      pip:
+        name: "{{item}}"
+        extra_args: -U jenkins
+      become: True
+      with_items:
+        - boto
+        - boto3
+
+    - name: Adding apt-repository for ansible
+      apt_repository:
+        repo: ppa:ansible/ansible
+      become: yes
+
+    - name: Installing ansible
+      apt: pkg=ansible state=present update_cache=yes
+      become: yes
+    
+    - name: Configuring Ansible
+      lineinfile:
+        path: /etc/ansible/ansible.cfg
+        insertafter: '\[defaults\]'
+        line: 'host_key_checking = False'
+        state: present
+      become: yes
+
+    - name: Enabling mysql to run on boot
+      service:
+        name: mysql
+        state: started
+        enabled: true
+      become: yes
+
+  handlers:
+  - name: restart jenkins
+    service: name=jenkins state=restarted
+    become: yes
+
+  - name: restart mysql
+    service: name=mysql state=restarted
+    become: yes
