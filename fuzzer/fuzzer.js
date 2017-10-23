@@ -54,7 +54,7 @@ function createRandomChangesInAFile(filePath) {
     var data = fs.readFileSync(filePath, 'utf-8').split(' ');
 
     data.forEach(function(ele, index) {
-        var match = ele.match(/\".*\"/i);
+        var match = ele.match(/\"[\w|\d]*\"/i);
 
 
         if (match != undefined) {
@@ -70,24 +70,28 @@ function createRandomChangesInAFile(filePath) {
                 replacement = randomizer.string(randomizer.integer(0, 2 * replacement.length));
             }
 
-            data[index] = data[index].replace(original, replacement);
+            if (randomizer.bool(0.05)) {
+                replacement = '';
+            }
+
+            data[index] = data[index].replace(match, "\""+replacement+"\"");
 
 
-            if (randomizer.bool(0.25)) {
+            if (randomizer.bool(0.01)) {
                 data[index] = data[index].replace(match, null);
             }
         }
 
-        if (ele.includes(">")) {
+        if (ele === ">") {
 
-            if (randomizer.bool(0.40)) {
+            if (randomizer.bool(0.20)) {
                 data[index] = ele.replace(/>/g, "<");
             }
         }
 
-        if (ele.includes("<")) {
+        if (ele === "<") {
 
-            if (randomizer.bool(0.30)) {
+            if (randomizer.bool(0.20)) {
                 data[index] = ele.replace(/</g, ">");
             }
         }
@@ -104,13 +108,13 @@ function createRandomChangesInAFile(filePath) {
             }
         }
 
-        if (ele.includes("1")) {
-            if (randomizer.bool(0.6)) {
+        if (ele === "1") {
+            if (randomizer.bool(0.60)) {
                 data[index] = ele.replace(/1/g, "0");
             }
         }
 
-        if (ele.includes("0")) {
+        if (ele === "0") {
             if (randomizer.bool(0.25)) {
                 data[index] = ele.replace(/1/g, "1");
             }
