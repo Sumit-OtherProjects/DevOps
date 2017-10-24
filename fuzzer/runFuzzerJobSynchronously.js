@@ -26,28 +26,42 @@ const GITPATH = `${LOCALPATH}/${ITRUST_V23}`;
 
 const ITRUST_RELATIVE_PATH = '/iTrust-v23/iTrust/src/main/edu/ncsu/csc/itrust';
 
+var numberOfIterations = 10;
+
 
 function main() {
 
-    //clone(REMOTE, LOCALPATH, BRANCH);
-    reset(GITPATH, 0)
-    fuzzer.main(LOCALPATH + ITRUST_RELATIVE_PATH);
+    for (var i = 1; i <= numberOfIterations; i++) {
 
-    console.log(Array.isArray(['compile']));
+        var maxRetries = 50;
 
-    var result = maven(GITPATH + "/" + ITRUST, ['compile']);
-    console.log(result);
+        var runJenkinsJob = false;
 
-    if (result.match(/BUILD FAILURE/)) {
-        console.log("resetting");
-        //reset to head
-        //reset(GITPATH,0);
-    } else {
-        console.log("commit");
-        //commit and push
-        add(GITPATH);
-        commit(GITPATH, "Neo");
-        push(GITPATH);
+        pull(GITPATH);
+
+        while (maxRetries > 0) {
+            fuzzer.main(LOCALPATH + ITRUST_RELATIVE_PATH);
+            var result = maven(GITPATH + "/" + ITRUST, ['compile']);
+
+            if (!result.match(/BUILD FAILURE/)) {
+                add(GITPATH);
+                commit(GITPATH, "Test" + i);
+                push(GITPATH);
+                runJenkinsJob = true;
+                break;
+            } else {
+                reset(GITPATH, 0);
+            }
+
+        }
+
+        if (runJenkinsJob) {
+            //Run jenkins job and check the status
+            //If failure run below code
+
+            //resetRemote(GITPATH);
+        }
+
     }
 
 }
