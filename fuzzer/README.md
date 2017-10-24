@@ -16,7 +16,7 @@ Any token or url for jenkins
 
 Just trigger 'node runFuzzerJob'
 
-This will trigger ITERATIONS number of commits and jenkins build job
+This will trigger ITERATIONS number of commits and jenkins build job for each commit.
 
 ### Things to add
 
@@ -27,4 +27,24 @@ The commitID is the token generated when we commit, the jenkins job will need to
 This is very important.
 
 Because we are reverting changes after every commit.
+
+i.e.
+
+commit1
+revert commit1
+commit2
+revert commit2
+
 So the HEAD will always be a clean copy, and will successfully pass maven test.
+
+The jenkins job needs to be a parameterized build
+
+It should take parameter as commitID
+then  run following commands
+
+git checkout commitID
+mvn test or mvn package
+
+
+Then trigger a post-build that will trigger test analysis.
+This is because we need build number to check which test reports to analyze.
