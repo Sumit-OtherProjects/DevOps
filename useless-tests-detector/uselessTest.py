@@ -70,28 +70,27 @@ for i in range(len(z)):
 #print file
 #print fileNo
 for j in range(1, fileNo+1):
-	if j <=100:
-	    try:
-	    	#print j
-	    	count = 0
+	try:
+	    #print j
+	    count = 0
 	    	
-	    	#path = str(os.path.dirname(os.path.realpath(__file__)))
-	    	tree = ET.parse(path + str(j)+"/junitResult.xml")
-	        root = tree.getroot()
-	        #print z[i]
-	        #print tree, j
-	    except:
-	    	pass
-	    xmlObj = XMLParser(root, xmlDict, 1)
-	    xmlObj.perf_func(root, root.tag)
-	    #print j," ",len(testCaseNames)
-	    file = open(path + str(j)+"/useless.txt",'w')
-	    file.write('Test Report of Analyzing Useless Test Cases\n')
-	    file.write('Current Build Number: '+str(j)+'\n')
-	    file.write('Number of Builds Checked Before This: '+str(j-1)+'\n')
-	    file.write('Number of Useless TestCases: '+str(len(testCaseNames)))
-	    file.write('\nList of Useless Testcases\n------------------------------------------------\n')
-	    for k, v in testCaseNames.items():
-			file.write(k+'\n')
+	    #path = str(os.path.dirname(os.path.realpath(__file__)))
+	    tree = ET.parse(path + str(j)+"/junitResult.xml")
+	    root = tree.getroot()
+	    #print z[i]
+	    #print tree, j
+	except:
+	    pass
+	xmlObj = XMLParser(root, xmlDict, 1)
+	xmlObj.perf_func(root, root.tag)
+	#print j," ",len(testCaseNames)
+	file = open(path + str(j)+"/useless.txt",'w')
+	file.write('Test Report of Analyzing Useless Test Cases\n')
+	file.write('Current Build Number: '+str(j)+'\n')
+	file.write('Number of Builds Checked Before This: '+str(j-1)+'\n')
+	file.write('Number of Useless TestCases: '+str(len(testCaseNames)))
+	file.write('\nList of Useless Testcases\n------------------------------------------------\n')
+	for k, v in testCaseNames.items():
+		file.write(k+'\n')
 
 	
