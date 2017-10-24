@@ -26,15 +26,18 @@ mvn test
       <includeFailedBuilds>false</includeFailedBuilds>
     </hudson.tasks.test.AggregatedTestResultPublisher>
     <hudson.tasks.junit.JUnitResultArchiver plugin="junit@1.21">
-      <testResults>iTrust-v23/iTrust/target//surefire-reports/*.xml</testResults>
+      <testResults>iTrust-v23/iTrust/target/surefire-reports/*.xml</testResults>
       <keepLongStdio>false</keepLongStdio>
+      <testDataPublishers>
+        <de.esailors.jenkins.teststability.StabilityTestDataPublisher plugin="test-stability@2.3"/>
+      </testDataPublishers>
       <healthScaleFactor>1.0</healthScaleFactor>
       <allowEmptyResults>false</allowEmptyResults>
     </hudson.tasks.junit.JUnitResultArchiver>
     <hudson.plugins.jacoco.JacocoPublisher plugin="jacoco@2.2.1">
-      <execPattern>**/**.exec</execPattern>
-      <classPattern>**/classes</classPattern>
-      <sourcePattern>**/src/main/java</sourcePattern>
+      <execPattern>iTrust-v23/iTrust/**.exec</execPattern>
+      <classPattern>iTrust-v23/iTrust/classes</classPattern>
+      <sourcePattern>iTrust-v23/iTrust/src/main/edu</sourcePattern>
       <inclusionPattern></inclusionPattern>
       <exclusionPattern></exclusionPattern>
       <skipCopyOfSrcFiles>false</skipCopyOfSrcFiles>

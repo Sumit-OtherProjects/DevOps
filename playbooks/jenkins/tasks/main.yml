@@ -89,13 +89,8 @@
 - name: Installing Recommended Plugins
   shell: java -jar /home/jenkins-cli.jar -auth "{{username}}":"{{jenkinspassword}}" -s http://localhost:8080 install-plugin "{{item}}" -deploy
   with_items:
-    - junit
-    - postbuild-task
-    - jacoco
-    - test-stability
-    - git
-    - git-client
-    - git-server
+    - "{{ plugins }}"
+  notify: restart jenkins
  
 - name: Enabling mysql to run on boot
   service:
