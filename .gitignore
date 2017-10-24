@@ -8,6 +8,7 @@ yarn-error.log*
 *.retry
 .DS_Store
 *.pem
+*.key
 package-lock.json
 
 # Runtime data
