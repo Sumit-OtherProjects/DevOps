@@ -29,14 +29,14 @@
 - name: Checking if checkbox build job already exists
   shell: "java -jar /home/jenkins-cli.jar -s http://localhost:8080 list-jobs --username {{username}} --password {{jenkinspassword}}"
   register: jobs_list
-  changed_when: "jobs_list.stdout.find('checkbox') == -1"
+  changed_when: "jobs_list.stdout.find('checkbox.io') == -1"
 
 - name: Sending template for iTrust to Jenkins server
   copy:
     src: files/config.xml
     dest: /tmp/checkbox_config.xml
-  when: "jobs_list.stdout.find('checkbox') == -1"
+  when: "jobs_list.stdout.find('checkbox.io') == -1"
 
 - name: Create job for checkbox.io
   shell: java -jar /home/jenkins-cli.jar -auth "{{username}}":"{{jenkinspassword}}" -s http://localhost:8080 create-job checkbox.io < /tmp/checkbox_config.xml
-  when: "jobs_list.stdout.find('checkbox') == -1"
+  when: "jobs_list.stdout.find('checkbox.io') == -1"

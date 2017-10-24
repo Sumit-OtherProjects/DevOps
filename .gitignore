@@ -5,6 +5,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+*.retry
 .DS_Store
 *.pem
 package-lock.json
