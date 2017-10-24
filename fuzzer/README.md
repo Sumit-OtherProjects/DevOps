@@ -22,6 +22,9 @@ Just trigger 'node runFuzzerJob'
 
 This will trigger ITERATIONS number of commits and jenkins build job for each commit.
 
+### Integration:
+Run the fuzzer.js. - it will create 100 commits. Each commit triggers a build for itrust build job (this job will have a post build job attached to it). After each build job finishes.. trigger a post build (for both failure and sucess) to trigger another job (useless test detector) - which will just run a python file to generate a report of useless test cases.
+
 ### Things to add
 
 Need to add curl command to execute jenkins build in the method triggerJenkinsJob(commitID)
