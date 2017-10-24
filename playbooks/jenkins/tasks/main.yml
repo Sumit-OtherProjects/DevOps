@@ -76,6 +76,7 @@
 
 - name: Adding mentioned user to jenkins
   shell: echo 'jenkins.model.Jenkins.instance.securityRealm.createAccount("{{username}}", "{{jenkinspassword}}")' | java -jar /home/jenkins-cli.jar -auth admin:"{{jenkinsadminpass.stdout}}" -s http://localhost:8080/ groovy =
+  when: false
 
 - name: Installing Recommended Plugins
   shell: java -jar /home/jenkins-cli.jar -auth "{{username}}":"{{jenkinspassword}}" -s http://localhost:8080 install-plugin "{{item}}" -deploy
