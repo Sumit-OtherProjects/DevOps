@@ -1,3 +1,4 @@
+---
 - name: Installing maven
   apt: pkg=maven state=present
 
@@ -12,6 +13,6 @@
     dest: /tmp/itrust.xml
   when: "jobs_list.stdout.find('itrust') == -1"
 
-- name: Creating new job for itrust
+- name: Creating new build job for itrust
   shell: java -jar /home/jenkins-cli.jar -auth "{{username}}":"{{jenkinspassword}}" -s http://localhost:8080 create-job itrust < /tmp/itrust.xml
   when: "jobs_list.stdout.find('itrust') == -1"
