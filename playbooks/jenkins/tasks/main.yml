@@ -41,6 +41,7 @@
   shell: >
     mysql -u root --execute "UPDATE mysql.user SET plugin = 'mysql_native_password' WHERE user = 'root'; FLUSH PRIVILEGES;"
 
+
 - name: restart
   service: name=mysql state=restarted
 
@@ -74,9 +75,16 @@
   shell: cat /var/lib/jenkins/secrets/initialAdminPassword
   register: jenkinsadminpass
 
+- name: Turn off Jenkins setup wizard
+  lineinfile:
+      dest: /etc/default/jenkins
+      regexp: '^JAVA_ARGS='
+      line: 'JAVA_ARGS="-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"'
+      insertbefore: '^DAEMON_ARGS='
+  notify: restart jenkins
+
 - name: Adding mentioned user to jenkins
   shell: echo 'jenkins.model.Jenkins.instance.securityRealm.createAccount("{{username}}", "{{jenkinspassword}}")' | java -jar /home/jenkins-cli.jar -auth admin:"{{jenkinsadminpass.stdout}}" -s http://localhost:8080/ groovy =
-  when: false
 
 - name: Installing Recommended Plugins
   shell: java -jar /home/jenkins-cli.jar -auth "{{username}}":"{{jenkinspassword}}" -s http://localhost:8080 install-plugin "{{item}}" -deploy
@@ -89,22 +97,8 @@
     - git-client
     - git-server
  
-- name: Turn off Jenkins setup wizard
-  lineinfile:
-      dest: /etc/default/jenkins
-      regexp: '^JAVA_ARGS='
-      line: 'JAVA_ARGS="-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"'
-      insertbefore: '^DAEMON_ARGS='
-  notify: restart jenkins
-
 - name: Enabling mysql to run on boot
   service:
     name: mysql
     state: started
     enabled: true
-
-- name: restart jenkins
-  service: name=jenkins state=restarted
-
-- name: restart mysql
-  service: name=mysql state=restarted
