@@ -16,4 +16,6 @@
       prompt: "Enter Jenkins Admin Password"
       private: yes
   roles:
+    - jenkins
+    - itrust
     - checkbox
