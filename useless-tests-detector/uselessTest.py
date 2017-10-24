@@ -77,7 +77,8 @@ for j in range(1, fileNo+1):
 	    count = 0
 	    	
 	    #path = str(os.path.dirname(os.path.realpath(__file__)))
-	    tree = ET.parse(path + str(j)+"/junitResult.xml")
+	    p = os.path.join(path, str(j), "junitResult.xml")
+	    tree = ET.parse(p)
 	    root = tree.getroot()
 	    #print z[i]
 	    #print tree, j
