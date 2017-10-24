@@ -6,60 +6,91 @@ const fuzzer = require('./fuzzer');
 
 const child_process = require('child_process');
 
-const USER = "";
+var USER = "";
 
-const PASS = "";
+var KEY = "";
 
 const REPO = "github.ncsu.edu/akshetty/iTrust-v23.git";
 
-const REMOTE = `https://${USER}:${PASS}@${REPO}`;
+var REMOTE = ``;
 
 const BRANCH = "fuzzer";
 
-const LOCALPATH = "";
+var LOCALPATH = "";
 
 const ITRUST_V23 = "iTrust-v23";
 
 const ITRUST = "iTrust";
 
-const GITPATH = `${LOCALPATH}/${ITRUST_V23}`;
+var GITPATH = ``;
 
 const ITRUST_RELATIVE_PATH = '/iTrust-v23/iTrust/src/main/edu/ncsu/csc/itrust';
 
-var numberOfIterations = 10;
+var numberOfIterations = 100;
 
 
 function main() {
 
-    for (var i = 1; i <= numberOfIterations; i++) {
+    USER = process.env.USER;
+
+    KEY = process.env.KEY;
+
+    LOCALPATH = process.env.LOCALPATH;
+
+    numberOfIterations = process.env.ITERATIONS || 100;
+
+    REMOTE = `https://${USER}:${KEY}@${REPO}`;
+
+    GITPATH = `${LOCALPATH}/${ITRUST_V23}`;
+
+    console.log("from env");
+    console.log(USER);
+    console.log(KEY);
+    console.log(LOCALPATH);
+    console.log(numberOfIterations);
+
+    clone(REMOTE, LOCALPATH, BRANCH);
+
+    for (var i = 1; i <= 1; i++) {
 
         var maxRetries = 50;
 
         var runJenkinsJob = false;
+
+        var commitID = '';
 
         pull(GITPATH);
 
         while (maxRetries > 0) {
             fuzzer.main(LOCALPATH + ITRUST_RELATIVE_PATH);
             var result = maven(GITPATH + "/" + ITRUST, ['compile']);
+            console.log("maven build------------------");
+            //console.log(result);
 
             if (!result.match(/BUILD FAILURE/)) {
-                add(GITPATH);
+                console.log('build success')
                 commit(GITPATH, "Test" + i);
-                push(GITPATH);
+
+                commitID = getCommitID(GITPATH, BRANCH);
+
+                console.log(commitID);
+
+                revertChanges(GITPATH);
+
                 runJenkinsJob = true;
                 break;
             } else {
-                reset(GITPATH, 0);
+                console.log('build failure');
+                reset(GITPATH, 'HEAD');
             }
 
         }
 
         if (runJenkinsJob) {
+            console.log("runnning jenkins job");
             //Run jenkins job and check the status
-            //If failure run below code
+            //triggerJenkinsJob(commitID);
 
-            //resetRemote(GITPATH);
         }
 
     }
@@ -72,121 +103,94 @@ function clone(remote, local, branch) {
     if (fs.existsSync(local + "/" + ITRUST_V23)) {
         fsExtra.removeSync(local + "/" + ITRUST_V23);
     }
-    var result = child_process.spawnSync('git', ['clone', remote, '--branch', branch], {
+
+    console.log("inside clone");
+    console.log(local + "/" + ITRUST_V23);
+
+    var result = child_process.execSync(`git clone ${remote}`, {
         cwd: local
+    }).toString('utf8');
+
+    if (result.match(/fatal|error/)) {
+        throw new Error("Error pulling changes from remote:\n" + result);
+    }
+
+    child_process.execSync(`git push origin --delete fuzzer`, {
+        cwd: local + "/" + ITRUST_V23
     });
 
-    if (result.error) {
-        throw new Error("Error cloning repo: " + remote + "\n" + error);
-    } else {
-        var analysis = result.stdout.toString('utf-8') + result.stderr.toString('utf-8');
-        if (analysis.match(/fatal|error/)) {
-            throw new Error("Error cloning repo: " + remote + "\n" + analysis);
-        }
-    }
+    child_process.execSync(`git checkout -b fuzzer && git push -u origin fuzzer`, {
+        cwd: local + "/" + ITRUST_V23
+    });
+
 }
 
 function pull(local) {
-    var result = child_process.spawnSync('git', ['pull'], {
+    var result = child_process.execSync('git pull', {
         cwd: local
-    });
+    }).toString('utf8');
 
-    if (result.error) {
-        throw new Error("Error pulling changes from remote:\n" + error);
-    } else {
-        var analysis = result.stdout.toString('utf-8') + result.stderr.toString('utf-8');
-        if (analysis.match(/fatal|error/)) {
-            throw new Error("Error pulling changes from remote:\n" + analysis);
-        }
+
+    if (result.match(/fatal|error/)) {
+        throw new Error("Error pulling changes from remote:\n" + result);
     }
+
 }
 
-function add(local) {
-    var result = child_process.spawnSync('git', ['add', '*java'], {
-        cwd: local
-    });
 
-    if (result.error) {
-        throw new Error("Error adding changes:\n" + error);
-    } else {
-        var analysis = result.stdout.toString('utf-8') + result.stderr.toString('utf-8');
-        if (analysis.match(/fatal|error/)) {
-            throw new Error("Error adding changes:\n" + analysis);
-        }
-    }
-}
 
 function commit(local, message) {
 
-    if (!message) {
-        throw new Error("Message required for commit");
-    }
-    var result = child_process.spawnSync('git', ['commit', '-m', message], {
+    var result = child_process.execSync(`git pull && git add *java && git commit -m "${message}" && git push`, {
         cwd: local
-    });
+    }).toString('utf8');
 
-    if (result.error) {
-        throw new Error("Error commiting changes:\n" + error);
-    } else {
-        var analysis = result.stdout.toString('utf-8') + result.stderr.toString('utf-8');
-        if (analysis.match(/fatal|error/)) {
-            throw new Error("Error commiting changes:\n" + analysis);
-        }
+
+
+    if (result.match(/fatal|error/)) {
+        throw new Error("Error commiting changes:\n" + result);
     }
+
 }
 
-function push(local) {
 
-    var result = child_process.spawnSync('git', ['push'], {
+
+function reset(local, commit) {
+
+    var result = child_process.execSync(`git reset --hard ${commit}`, {
         cwd: local
-    });
+    }).toString('utf-8');
 
-    if (result.error) {
-        throw new Error("Error pushing changes to remote:\n" + error);
-    } else {
-        var analysis = result.stdout.toString('utf-8') + result.stderr.toString('utf-8');
-        if (analysis.match(/fatal|error/)) {
-            throw new Error("Error pushing changes to remote:\n" + analysis);
-        }
+
+    if (result.match(/fatal|error/)) {
+        throw new Error("Error reverting changes:\n" + result);
     }
+
 }
 
-function reset(local, numberOfCommits) {
+function revertChanges(local) {
 
-    if (typeof numberOfCommits != 'number') {
-        throw new Error("numberOfCommits should be a whole number");
-    }
-
-    var result = child_process.spawnSync('git', ['reset', '--hard', 'HEAD~' + numberOfCommits], {
+    var result = child_process.execSync('git revert --no-edit HEAD && git push', {
         cwd: local
-    });
+    }).toString('utf8');
 
-    if (result.error) {
-        throw new Error("Error reverting changes:\n" + error);
-    } else {
-        var analysis = result.stdout.toString('utf-8') + result.stderr.toString('utf-8');
-        if (analysis.match(/fatal|error/)) {
-            throw new Error("Error reverting changes:\n" + analysis);
-        }
+    if (result.match(/fatal|error/)) {
+        throw new Error("Error reverting changes to remote:\n" + result);
     }
+
 }
 
-function resetRemote(local) {
-
-    reset(local, 1);
-
-    var result = child_process.spawnSync('git', ['push', '-f'], {
+function getCommitID(local, branch) {
+    var result = child_process.execSync(`git rev-parse ${branch}`, {
         cwd: local
-    });
+    }).toString('utf8').trim();
 
-    if (result.error) {
-        throw new Error("Error reverting changes to remote:\n" + error);
-    } else {
-        var analysis = result.stdout.toString('utf-8') + result.stderr.toString('utf-8');
-        if (analysis.match(/fatal|error/)) {
-            throw new Error("Error reverting changes to remote:\n" + analysis);
-        }
+    console.log("getcommit:" + result);
+    if (result.match(/fatal|error/)) {
+        throw new Error("Error reverting changes to remote:\n" + result);
     }
+
+    return result;
 }
 
 /*
@@ -208,6 +212,14 @@ function maven(local, args) {
     }
 }
 
+function triggerJenkinsJob(commitID) {
+    var result = child_process.execSync('some curl command', {
+        cwd: local
+    }).toString('utf8');
 
+    if (result.match(/error|fatal/i)) {
+        console.error(result);
+    }
+}
 
 main();
