@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 import os
+import sys
 from glob import glob
 
 class XMLParser:
@@ -52,7 +53,8 @@ class XMLParser:
 
 
 #path = str(os.path.dirname(os.path.realpath(__file__)))
-path = raw_input("Give the path:")
+
+path = sys.argv[1] #raw_input("Give the path:")
 #print p
 print path
 z = glob(path + "*/")
