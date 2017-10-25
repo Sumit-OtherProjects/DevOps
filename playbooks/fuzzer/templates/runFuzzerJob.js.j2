@@ -4,6 +4,8 @@ const fsExtra = require('fs-extra');
 
 const fuzzer = require('./fuzzer');
 
+var sleep = require('system-sleep');
+
 const child_process = require('child_process');
 
 var USER = "{{github_username}}";
@@ -92,7 +94,7 @@ function main() {
             triggerJenkinsJob(commitID);
 
         }
-
+        sleep(80000);
     }
 
 }
