@@ -23,8 +23,9 @@
   <builders>
     <hudson.tasks.Shell>
       <command>rm -rf iTrust-v23
-git clone https://abandar:Linkinpark%212093@github.ncsu.edu/engr-csc326-staff/iTrust-v23.git
+git clone https://{{github_username}}:{{github_password}}@github.ncsu.edu/agarg12/iTrust-v23.git
 cd iTrust-v23/iTrust/
+git checkout fuzzer
 mvn compile
 mvn test
 </command>
