@@ -1,6 +1,6 @@
 ## Ansible Playbooks
 
-Jenkins + iTrust Build Job - Abhishek Bandarupalle <br />
+Jenkins + iTrust Build Job - Abhishek Bandarupalle + Abhimanyu Jataria <br />
 Checkbox + Fuzzer + Useless-Tests - Ankur Garg <br />
 
 All relevant ansible playbooks are present in (./playbooks)[./playbooks] folder. It contains roles for each task.<br />
