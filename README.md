@@ -46,6 +46,8 @@ Total number of useless tests detected = 245.
 ## Analysis 
 The code is [./analysis](./analysis) folder. The script main.js is the analysis script. It takes input the directory containing the server-side code of checkbox.io. It runs analysis on each .js file recursively found in this given directory. <br />
 For each of these files, it runs analysis on each function. It checks the four criteria mentioned in Milestone 2 question. <br />
+
+### Report:
 The report is generated in xml format. One such report has also been generated in txt format. <br />
 Both reports are present at links: ![here](./analysis/analysis.txt) in txt format and [here](./analysis/analysis_report.xml) in xml format
 
