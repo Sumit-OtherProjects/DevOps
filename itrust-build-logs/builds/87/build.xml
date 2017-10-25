@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<build>
+  <actions>
+    <hudson.model.CauseAction>
+      <causeBag class="linked-hash-map">
+        <entry>
+          <hudson.model.Cause_-RemoteCause>
+            <addr>127.0.0.1</addr>
+          </hudson.model.Cause_-RemoteCause>
+          <int>1</int>
+        </entry>
+      </causeBag>
+    </hudson.model.CauseAction>
+    <hudson.tasks.test.AggregatedTestResultPublisher_-TestResultAction plugin="junit@1.21">
+      <descriptions class="concurrent-hash-map"/>
+      <jobs>itrust-useless-test</jobs>
+      <includeFailedBuilds>false</includeFailedBuilds>
+    </hudson.tasks.test.AggregatedTestResultPublisher_-TestResultAction>
+  </actions>
+  <queueId>303</queueId>
+  <timestamp>1508964254959</timestamp>
+  <startTime>1508964254965</startTime>
+  <result>FAILURE</result>
+  <duration>3773</duration>
+  <charset>UTF-8</charset>
+  <keepLog>false</keepLog>
+  <builtOn></builtOn>
+  <workspace>/var/lib/jenkins/workspace/itrust-main</workspace>
+  <hudsonVersion>2.73.2</hudsonVersion>
+  <scm class="hudson.scm.NullChangeLogParser"/>
+  <culprits class="com.google.common.collect.EmptyImmutableSortedSet"/>
+</build>
