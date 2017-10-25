@@ -1,4 +1,4 @@
-# CSC5198 - Devops-milestone2
+# CSC519 - DevOps Milestone 2
 Devops 2 Milestone Testing
 ### Team Members:
     Debosmita Das(ddas5)
