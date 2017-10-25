@@ -33,13 +33,7 @@ function main()
 
   	var xml_output = output_report_file(all_builders);
 
-  	fs.writeFileSync("./analysis_report.xml", xml_output.toString(), function(err) {
-	    if(err) {
-	        return console.log(err);
-	    }
-
-	    console.log("The file was saved!");
-	});
+  	fs.writeFileSync("./analysis_report.xml", xml_output.toString());
 
 	if (ShouldWeFail(all_builders)) {
 		console.log("trigger build failure");
