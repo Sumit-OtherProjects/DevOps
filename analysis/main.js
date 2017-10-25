@@ -32,8 +32,8 @@ function main()
 
 
   	var xml_output = output_report_file(all_builders);
-
-  	fs.writeFile("./analysis_report.xml", xml_output.toString(), function(err) {
+  	
+  	fs.writeFileSync("./analysis_report.xml", xml_output.toString(), function(err) {
 	    if(err) {
 	        return console.log(err);
 	    }
