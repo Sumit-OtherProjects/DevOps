@@ -1,5 +1,11 @@
-# devops-milestone2
+# CSC5198 - Devops-milestone2
 Devops 2 Milestone Testing
+### Team Members:
+    Debosmita Das(ddas5)
+    Abhishek Bandarupalle(abandar)
+    Ankur Garg(agarg12)
+    Abhimanyu Jataria(ajatari)
+    Atit Shetty(akshetty)
 
 ## Itrust fork
 
