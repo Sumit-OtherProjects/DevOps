@@ -120,8 +120,9 @@ function clone(remote, local, branch) {
 //    child_process.execSync(`git push origin --delete fuzzer`, {
 //        cwd: local + "/" + ITRUST_V23
 //    });
-
-    child_process.execSync(`git checkout -b fuzzer && git push -u origin fuzzer`, {
+    
+//    child_process.execSync(`git checkout -b fuzzer && git push -u origin fuzzer`, {
+    child_process.execSync(`git checkout -b fuzzer`, {
         cwd: local + "/" + ITRUST_V23
     });
 
