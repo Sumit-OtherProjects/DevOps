@@ -15,8 +15,15 @@
     - name: jenkinspassword
       prompt: "Enter Jenkins Admin Password"
       private: yes
+    - name: github_username
+      prompt: "Enter github username"
+      private: no
+    - name: github_password
+      prompt: "Enter github Password"
+      private: yes
   roles:
     - jenkins
     - useless-tests
     - itrust
+    - fuzzer
     - checkbox

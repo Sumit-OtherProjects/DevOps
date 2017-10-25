@@ -26,7 +26,7 @@ var GITPATH = ``;
 
 const ITRUST_RELATIVE_PATH = '/iTrust-v23/iTrust/src/main/edu/ncsu/csc/itrust';
 
-var numberOfIterations = 100;
+var numberOfIterations = {{ITERS}};
 
 
 function main() {
@@ -37,7 +37,7 @@ function main() {
 
     //LOCALPATH = process.env.LOCALPATH;
 
-    numberOfIterations = process.env.ITERATIONS || 100;
+    //numberOfIterations = process.env.ITERATIONS || 100;
 
     REMOTE = `https://${USER}:${KEY}@${REPO}`;
 
@@ -51,7 +51,7 @@ function main() {
 
     clone(REMOTE, LOCALPATH, BRANCH);
 
-    for (var i = 1; i <= 1; i++) {
+    for (var i = 1; i <= numberOfIterations; i++) {
 
         var maxRetries = 50;
 
@@ -107,7 +107,7 @@ function clone(remote, local, branch) {
     console.log("inside clone");
     console.log(local + "/" + ITRUST_V23);
 
-    var result = child_process.execSync(`git clone ${remote}`, {
+    var result = child_process.execSync(`git clone ${remote} && cd ${ITRUST_V23} && git config credential.helper store`, {
         cwd: local
     }).toString('utf8');
 

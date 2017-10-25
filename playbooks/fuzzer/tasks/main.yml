@@ -1,0 +1,37 @@
+--- # playbook to setup fuzzer on jenkins server 
+- name: create a direcotory for placing analysis fuzzer files
+  file:
+    path: "{{jenkins_home}}/fuzzer"
+    state: directory
+    owner: jenkins
+    mode: 0755
+
+- name: Copy fuzzer script to jenkins server
+  copy: 
+    src: files/{{item}}
+    dest: "{{jenkins_home}}/fuzzer/{{item}}"
+  with_items:
+    - package.json
+    - fuzzer.js
+
+- name: Copy fuzzer script
+  template:
+    src: runFuzzerJob.js.j2
+    dest: "{{jenkins_home}}/fuzzer/runFuzzerJob.js"
+    owner: jenkins
+    group: jenkins
+
+- name: Some stuff
+  command: git config --global user.email "you@someone.com"
+
+- name: Some stuff
+  command: git config --global user.name "Your Name"
+
+- name: run fuzzer - npm install
+  command: npm install
+  args:
+    chdir: "{{jenkins_home}}/fuzzer"
+
+- name: run fuzzer - node runFuzzerJob.js
+  shell: cd "{{jenkins_home}}/fuzzer" && node runFuzzerJob.js
+  become: yes

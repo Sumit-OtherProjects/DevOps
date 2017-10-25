@@ -21,7 +21,7 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>rm -rf *
+      <command>rm -rf iTrust-v23
 git clone https://abandar:Linkinpark%212093@github.ncsu.edu/engr-csc326-staff/iTrust-v23.git
 cd iTrust-v23/iTrust/
 mvn compile
