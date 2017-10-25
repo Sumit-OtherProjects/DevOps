@@ -13,7 +13,7 @@
   <builders>
     <hudson.tasks.Shell>
       <command>cd /var/lib/jenkins/useless/
-python uselessTest.py ../jobs/itrust-main/builds</command>
+python uselessTest.py ../jobs/itrust-main/builds/</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>
