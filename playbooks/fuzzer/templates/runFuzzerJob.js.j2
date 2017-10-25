@@ -12,7 +12,7 @@ var USER = "{{github_username}}";
 
 var KEY = "{{github_password}}";
 
-const REPO = "github.ncsu.edu/agarg12/iTrust-v23.git";
+const REPO = "github.ncsu.edu/akshetty/iTrust-v23.git";
 
 var REMOTE = ``;
 
@@ -94,7 +94,7 @@ function main() {
             triggerJenkinsJob(commitID);
 
         }
-        sleep(80000);
+        sleep(100000);
     }
 
 }
@@ -215,7 +215,7 @@ function maven(local, args) {
 }
 
 function triggerJenkinsJob(commitID) {
-    var result = child_process.execSync('curl http://{{username}}:{{jenkinspassword}}@localhost:8080/job/itrust-main/build?token=itrust-trigger', {
+    var result = child_process.execSync('curl http://{{username}}:{{jenkinspassword}}@localhost:8080/job/itrust-main/build?token=itrust-trigger&commitID='+commitID, {
         cwd: '.'
     }).toString('utf8');
 

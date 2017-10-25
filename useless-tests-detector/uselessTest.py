@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 import os
 import sys
-from glob import glob
+import glob
 
 class XMLParser:
 	def __init__(self, root, xmlDict, count):
@@ -57,10 +57,14 @@ class XMLParser:
 path = sys.argv[1] #raw_input("Give the path:")
 #print p
 print path
-z = glob(path + "*/")
+z = [p for p in glob.iglob(path + '[0-9]')]
+z += [p for p in glob.iglob(path + '[0-9][0-9]')]
+z += [p for p in glob.iglob(path + '[0-9][0-9][0-9]')]
+z += [p for p in glob.iglob(path + '[0-9][0-9][0-9][0-9]')]
+#z = glob(path + "*/")
 xmlDict = {}
 
-
+print z
 #print len(z)
 fileNo = 0
 count = 0
@@ -88,6 +92,7 @@ for j in range(1, fileNo+1):
 	xmlObj.perf_func(root, root.tag)
 	#print j," ",len(testCaseNames)
 	out = os.path.join(path, str(j), "useless.txt")
+        print out
 	file = open(out,'w')
 	file.write('Test Report of Analyzing Useless Test Cases\n')
 	file.write('Current Build Number: '+str(j)+'\n')

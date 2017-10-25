@@ -26,7 +26,7 @@ After commiting changes, trigger a jenkins build.
 
 ### Itrust fork
 
-https://github.ncsu.edu/akshetty/iTrust-v23
+https://github.ncsu.edu/agarg12/iTrust-v23
 
 branch : fuzzer
 
