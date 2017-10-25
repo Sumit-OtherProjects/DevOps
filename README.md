@@ -39,6 +39,12 @@ Atit Shetty:
 Debosmita Das:
 - Useless Test Detector
 
+Abhimanyu Jataria
+- Jenkins Setup and Itrust Build Job
+
+Abhishek Bandarupalle
+- Jenkins Setup and Itrust Build Job
+
 Ankur Garg (agarg12):
 - Analysis Script for checkbox.io for static analysis
 - Integration of Analysis script with jenkins build job and Useless Test Detector as a post build job of Itrust build job
