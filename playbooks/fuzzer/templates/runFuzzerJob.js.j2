@@ -94,7 +94,7 @@ function main() {
             triggerJenkinsJob(commitID);
 
         }
-        sleep(100000);
+        sleep(150000);
     }
 
 }
@@ -122,7 +122,7 @@ function clone(remote, local, branch) {
 //    });
     
 //    child_process.execSync(`git checkout -b fuzzer && git push -u origin fuzzer`, {
-    child_process.execSync(`git checkout -b fuzzer`, {
+    child_process.execSync(`git checkout fuzzer`, {
         cwd: local + "/" + ITRUST_V23
     });
 
