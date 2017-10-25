@@ -5,14 +5,14 @@
 - name: Checking if itrust build job already exists
   shell: "java -jar /home/jenkins-cli.jar -s http://localhost:8080 list-jobs --username {{username}} --password {{jenkinspassword}}"
   register: jobs_list
-  changed_when: "jobs_list.stdout.find('itrust') == -1"
+  changed_when: "jobs_list.stdout.find('itrust-main') == -1"
 
 - name: Sending template for iTrust to Jenkins server
   copy:
     src: files/itrust.xml
     dest: /tmp/itrust.xml
-  when: "jobs_list.stdout.find('itrust') == -1"
+  when: "jobs_list.stdout.find('itrust-main') == -1"
 
 - name: Creating new build job for itrust
-  shell: java -jar /home/jenkins-cli.jar -auth "{{username}}":"{{jenkinspassword}}" -s http://localhost:8080 create-job itrust < /tmp/itrust.xml
-  when: "jobs_list.stdout.find('itrust') == -1"
+  shell: java -jar /home/jenkins-cli.jar -auth "{{username}}":"{{jenkinspassword}}" -s http://localhost:8080 create-job itrust-main < /tmp/itrust.xml
+  when: "jobs_list.stdout.find('itrust-main') == -1"

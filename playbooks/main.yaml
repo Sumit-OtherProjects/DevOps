@@ -17,5 +17,6 @@
       private: yes
   roles:
     - jenkins
+    - useless-tests
     - itrust
-#    - checkbox
+    - checkbox
