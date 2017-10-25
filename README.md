@@ -38,13 +38,19 @@ The report generated for 100th build will contain the useless test cases as requ
 
 The script has been written in Python.
 
+### Report
+The final report of useless test detector after running for 100+ commits+builds is present [here](./useless-tests-detector/useless_test_report.txt)
+
+Total number of useless tests detected = 245.
+
 ## Analysis 
 The code is [./analysis](./analysis) folder. The script main.js is the analysis script. It takes input the directory containing the server-side code of checkbox.io. It runs analysis on each .js file recursively found in this given directory. <br />
 For each of these files, it runs analysis on each function. It checks the four criteria mentioned in Milestone 2 question. <br />
 The report is generated in xml format. One such report has also been generated in txt format. <br />
 Both reports are present at links: ![here](./analysis/analysis.txt) in txt format and [here](./analysis/analysis_report.xml) in xml format
 
-### Screencast:
+
+## Screencasts:
 
 ### Checkbox
 [![Screencast for Analysis (Checkbox.io) Component](https://img.youtube.com/vi/nRk9pbon4hc/0.jpg)](https://www.youtube.com/watch?v=nRk9pbon4hc)
@@ -63,6 +69,7 @@ Atit Shetty:
 
 Debosmita Das:
 - Useless Test Detector
+- Running Fuzzer (100 commits + report analysis)
 
 Abhimanyu Jataria
 - Jenkins Setup and Itrust Build Job
@@ -75,3 +82,4 @@ Ankur Garg (agarg12):
 - Integration of Analysis script with jenkins build job and Useless Test Detector as a post build job of Itrust build job
 - Ansible script for fuzzer to run fuzzer on jenkins server
 - Ansible Scripts for creating Build jobs of Useless test detector and analysis script
+- Running Fuzzer (100 commits + report analysis)
