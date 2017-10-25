@@ -30,7 +30,7 @@ function main()
   		all_builders[file] = builders;
   	}
 
-
+  	written_output(all_builders);
   	var xml_output = output_report_file(all_builders);
   	
   	fs.writeFileSync("./analysis_report.xml", xml_output.toString(), function(err) {
@@ -99,6 +99,21 @@ var walkSync = function(dir, filelist) {
   });
   return filelist;
 };
+
+function written_output(builders) {
+	for (var b in builders) {
+		console.log("- file = ", b);
+		var builder = builders[b];
+		for (var func in builder) {
+			var s = builder[func];
+			console.log("--func = ", func);
+			console.log("----Big O = ", s.MaxNestingDepth);
+			console.log("----lines of code = ", s.number_of_lines);
+			console.log("----number of sync calls = ", s.sync_calls_count);
+			console.log("----Message Chain Length = ", s.msg_chain_length);
+		}
+	}
+}
 
 function output_report_file(builders) {
 	var xw = xmlbuilder.create('analysis');
