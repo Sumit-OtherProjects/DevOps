@@ -126,7 +126,7 @@ app.get('/catfact::num', function(req, res) {
 							var line = get_line('catfacts.txt', req.params.num, function(err, line){
 								client.set(key_name, line, function(err, value) {
 									client.expire(key_name, 10, function() {
-										res.write("<h3>Key doesn't exist - retrieving from diska and setting now</h3>");
+										res.write("<h3>Key doesn't exist - retrieving from disk and setting now</h3>");
 										res.write("<h3>created a key for 10 seconds</h3>");
 										res.write("Line = "+line+"<br />");
 									});
