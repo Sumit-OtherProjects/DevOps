@@ -79,14 +79,6 @@ app.get('/get', function(req, res) {
 	});
 })
 
-app.get('/getCache', function(req, res) {
-	client.get("cache_feature", function(err, value) {
-		res.writeHead(200, {'content-type':'text/html'});
-		res.write("<h3>"+value + "</h3>");
-		res.end();
-	});
-})
-
 app.get('/recent', function(req, res) {
 	{
 		// res.writeHead(200, {'content-type':'text/html'});
