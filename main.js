@@ -118,64 +118,62 @@ app.get('/catfact::num', function(req, res) {
 		res.writeHead(200, {'content-type':'text/html'});
 		// res.write("<h3>catfact : "+req.params.num+"</h3>");
 
-		
-		if (cache_feature) {
-			var key_name = "catfact"+req.params.num;
-			client.get(key_name, function(err, value) {
-				client.ttl(key_name, function(err, time) {
-					if (time > 0) {
-						res.write("<h3>"+value+" - time_remaining = " + time + "</h3>");
-						res.end();
-					}
-					else {
-						var line = get_line('catfacts.txt', req.params.num, function(err, line){
-							client.set(key_name, line, function(err, value) {
-								client.expire(key_name, 10, function() {
-									res.write("<h3>created a key for 10 seconds</h3>");
-									res.write("Line = "+line+"<br />");
+		var cache_feature = false;
+		client.exists("cache_feature", function(err, value) {
+			if (value == 1) {
+				res.write("Caching is on - Will check for existing key<br />");
+				var key_name = "catfact"+req.params.num;
+				client.get(key_name, function(err, value) {
+					client.ttl(key_name, function(err, time) {
+						if (time > 0) {
+							res.write("<h3>Key exists - shown below with time remaining</h3>");
+							res.write("<h3>"+value+" - time_remaining = " + time + "</h3>");
+							res.end();
+						}
+						else {
+							var line = get_line('catfacts.txt', req.params.num, function(err, line){
+								client.set(key_name, line, function(err, value) {
+									client.expire(key_name, 10, function() {
+										res.write("<h3>Key doesn't exist - setting now</h3>");
+										res.write("<h3>created a key for 10 seconds</h3>");
+										res.write("Line = "+line+"<br />");
+									});
 								});
-							});
-						})
-					}
-					
+							})
+						}
+						
+					});
 				});
-			});
-		}
-		else {
-			var line = get_line('catfacts.txt', req.params.num, function(err, line){
-				res.write("Line = "+line+"<br />");
-				res.end();
-			});
-		}		
-   		
+			}
+			else {
+				var line = get_line('catfacts.txt', req.params.num, function(err, line){
+					res.write("Caching is off - displaying line from disk<br />");
+					res.write("Line = "+line+"<br />");
+					res.end();
+				});
+			}
+		});
    		// console.log(req);
 	}
 })
 
 app.get('/toggleCacheFeature', function(req, res) {
 	{
-		var new_value = "";
 		res.writeHead(200, {'content-type':'text/html'});
-		client.get("cache_feature", function(err, value) {
-			res.write("<h3>Old Value: "+value+"</h3>");
-			if (value === "on"){
-				new_value = "off";
-			}
-			else if (value === "off"){
-				new_value = "on";
+		client.exists("cache_feature", function(err, value) {
+			if (value != 1) {
+				client.set('cache_feature', 'val1');
+				res.write("<h3>Caching Feature turned on</h3>");
+				res.end();
 			}
 			else {
-				new_value = "on";
+				client.del('cache_feature', function(err, reply) {
+				    res.write("<h3>Caching Feature turned off</h3>");
+				    res.end();
+				});
 			}
 		});
-		client.set("cache_feature", new_value, function(err, value) {
-			if (err) {
-				throw err;
-			}
-			res.write("<h3>Err: "+err+"</h3>");
-			res.write("<h3>Cache Feature: "+new_value+"</h3>");
-			res.end();
-		});
+		
    		// console.log(req);
 	}
 })
