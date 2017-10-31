@@ -7,7 +7,7 @@ Devops 2 Milestone Testing
     Abhimanyu Jataria(ajatari)
     Atit Shetty(akshetty)
 
-## (Ansible Playbooks)[./playbooks]
+<h2> <a href="./playbooks">Ansible Playbooks</a></h2>
 All relevant ansible playbooks are present in (./playbooks)[./playbooks] folder.
 It contains roles for each task.
 - checkbos: sets up jenkins build job for analysis of checkbox.io
@@ -16,7 +16,7 @@ It contains roles for each task.
 - jenkins: sets up remote machine with jenkins and any other pre-requisites required
 - useless-tests: sets up jenkins build job for running useless test case detector. This build job is trigger as a post build action of itrust build job
 
-## (Fuzzer)[./fuzzer]
+<h2> <a href="./fuzzer">Fuzzer</a></h2>
 fuzzer scripts are present in [./fuzzer](./fuzzer) folder.
 It takes a directory path and randomly selects a sample list, and modifies them.
 
@@ -30,7 +30,7 @@ https://github.ncsu.edu/akshetty/iTrust-v23
 
 branch : fuzzer
 
-## (Useless Test Detector)[./useless-tests-detector]
+<h2> <a href="./useless-tests-detector">Useless Test Detector</a></h2>
 Takes input directory contains the the build logs of each itrust build and generates a report of useless test cases for each of those builds.
 It uses all previous builds to analyze the test cases which did not fail till that build to find useless test cases.
 
@@ -43,7 +43,7 @@ The final report of useless test detector after running for 100+ commits+builds 
 
 Total number of useless tests detected = 245.
 
-## (Analysis)[./analysis]
+<h2> <a href="./analysis">Analysis</a></h2>
 The code is [./analysis](./analysis) folder. The script main.js is the analysis script. It takes input the directory containing the server-side code of checkbox.io. It runs analysis on each .js file recursively found in this given directory. <br />
 For each of these files, it runs analysis on each function. It checks the four criteria mentioned in Milestone 2 question. <br />
 
