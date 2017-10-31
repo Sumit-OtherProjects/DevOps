@@ -42,7 +42,7 @@ Relation to Ops Toggles:
 
 ### Ways to speed up an application
 1. Traffic peaks on monday evenings <br />
-Use Load Balancing. For certain time, when load is high, spawn new instances for handling extra load. This scaling can happend automatically based on number of requests being served at any moment and current performance of the server. <br/>
+Use Load Balancing. For certain time, when load is high, spawn new instances for handling extra load. This scaling can happen automatically based on number of requests being served at any moment and current performance of the server. <br/>
 Avoid slow spin-up for new instances. <br />
 Apart from this, some simple ways to free up server resources like not using CPU resources for static requests, can help free up critical resources which can handle more load. Use separate environment for rendering static content.<br />
 2. Real time and concurrent connection with peers<br />
