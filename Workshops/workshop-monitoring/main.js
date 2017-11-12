@@ -21,9 +21,8 @@ exec("node mediumService.js");
 exec("node slowService.js");
 
 function memoryLoad()
-{
-	// console.log( os.totalmem(), os.freemem() );
-	return 0;
+{	
+	return ((os.totalmem() - os.freemem())/os.totalmem() );
 }
 
 // Create function to get CPU information
@@ -62,6 +61,8 @@ function cpuAverage()
 	var totalDifference = endMeasure.total - startMeasure.total;
  
 	//Calculate the average percentage CPU usage
+	console.log("idleDifference = ", idleDifference);
+	console.log("totalDifference = ", totalDifference);
 	return 0;
 }
 

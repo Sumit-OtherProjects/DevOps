@@ -4,12 +4,11 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "test": "mocha" 
+    "test": "mocha"
   },
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "dependencies": {
     "socket.io": "^1.7.3",
     "request": "^2.55.0",
