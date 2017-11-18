@@ -21,9 +21,14 @@ Orchestration using puppet
 
 ``` sudo /opt/puppetlabs/bin/puppet cert sign --all ```
 
+8. In the master copy the ```site.pp``` file in location ```/etc/puppetlabs/code/environments/production/manifests```.
+   This has code to create folder in the agent.
+
 8. Everything is done. To verify, go to agent and run 
 
 ``` sudo /opt/puppetlabs/bin/puppet agent --test ```
+
+9. You should also see a folder by the name ```puppetdir``` in ```/tmp```. This was created by master in the agent.
 
 This should output something like this:
 
