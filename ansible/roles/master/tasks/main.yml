@@ -1,0 +1,42 @@
+---
+- name: Add master DNS host name in /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    line: "{{ansible_host}}  {{MASTER_DNS}} puppet"
+
+
+- name: Download puppet
+  get_url: 
+    url: https://apt.puppetlabs.com/puppetlabs-release-pc1-xenial.deb
+    dest: /tmp/
+
+- name: Install Puppet package
+  apt:
+    deb: /tmp/puppetlabs-release-pc1-xenial.deb
+
+- name: Run apt-get update
+  apt:
+    update_cache: yes
+  changed_when: False
+
+- name: Install puppet server
+  apt:
+    name: puppetserver
+    state: present
+
+- name: update puppet conf
+  blockinfile:
+    path: /etc/puppetlabs/puppet/puppet.conf
+    block: |
+      [master]
+      dns_alt_names = {{MASTER_DNS}},puppet
+      [main]
+      certname = {{MASTER_DNS}}
+      server = {{MASTER_DNS}}
+      environment = production
+
+- name: restart puppet server
+  service:
+    name: puppetserver
+    state: restarted
+    enabled: yes

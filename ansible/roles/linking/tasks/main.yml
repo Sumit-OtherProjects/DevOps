@@ -1,0 +1,4 @@
+---
+- name: Accept certificates in server from client
+  shell: puppet cert sign --all
+  become: no
