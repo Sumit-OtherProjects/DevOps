@@ -1,6 +1,6 @@
 #!/bin/sh
 CLIENT_DNS="puppet.agent.local"
-CLIENT_IP=192.168.33.10
+CLIENT_IP=192.168.33.11
 MASTER_DNS="puppet.master.local"
 MASTER_IP=192.168.33.10
 
