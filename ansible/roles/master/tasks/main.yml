@@ -34,9 +34,16 @@
       certname = {{MASTER_DNS}}
       server = {{MASTER_DNS}}
       environment = production
+  register: conf_updated
 
 - name: restart puppet server
   service:
     name: puppetserver
     state: restarted
     enabled: yes
+  when: conf_updated.changed == True
+
+- name: place config file in manifest folder
+  copy:
+    src: files/site.pp
+    dest: /etc/puppetlabs/code/environments/production/manifests/
