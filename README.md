@@ -20,6 +20,6 @@ This module will be included in [site.pp](https://github.ncsu.edu/akshetty/devop
 
 ### [Walkthrough](https://www.youtube.com/watch?v=JAZOt7IV15I)
 
-[![Walkthrough](https://www.youtube.com/watch?v=JAZOt7IV15I/0.jpg)](https://www.youtube.com/watch?v=JAZOt7IV15I)
+[![Walkthrough](./Presentation/PuppetDemo.png)](https://www.youtube.com/watch?v=JAZOt7IV15I)
 
 https://www.youtube.com/watch?v=JAZOt7IV15I
