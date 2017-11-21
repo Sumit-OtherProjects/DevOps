@@ -4,9 +4,8 @@
     path: /etc/hosts
     line: "{{ansible_host}}  {{MASTER_DNS}} puppet"
 
-
 - name: Download puppet
-  get_url: 
+  get_url:
     url: https://apt.puppetlabs.com/puppetlabs-release-pc1-xenial.deb
     dest: /tmp/
 
@@ -43,7 +42,28 @@
     enabled: yes
   when: conf_updated.changed == True
 
-- name: place config file in manifest folder
+- name: Copy main manifest file
   copy:
-    src: files/site.pp
+    src: site.pp
     dest: /etc/puppetlabs/code/environments/production/manifests/
+
+- name: Copy run_checkboxio module
+  synchronize:
+    src: run_checkboxio
+    dest: /etc/puppetlabs/code/modules/
+    recursive: yes
+    delete: yes
+
+- name: Change permission for modules
+  file:
+    path: /etc/puppetlabs/code/modules/run_checkboxio
+    mode: 0755
+    state: directory
+    recurse: yes
+
+- name: Install puppet forge modules
+  shell: /opt/puppetlabs/bin/puppet module install puppetlabs-"{{ item }}"
+  with_items:
+    - vcsrepo
+    - stdlib
+    - apt

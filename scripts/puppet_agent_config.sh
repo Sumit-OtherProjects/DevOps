@@ -29,6 +29,8 @@ tee -a /etc/puppetlabs/puppet/puppet.conf << EOL
 certname = $CLIENT_DNS
 server = $MASTER_DNS
 environment = production
+[agent]
+runinterval = 600
 EOL
 
 echo "\n\nRestart puppet service"

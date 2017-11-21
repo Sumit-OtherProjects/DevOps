@@ -10,7 +10,7 @@
     line: "{{ansible_host}} puppet.{{inventory_hostname}}.local"
 
 - name: Download puppet
-  get_url: 
+  get_url:
     url: https://apt.puppetlabs.com/puppetlabs-release-pc1-xenial.deb
     dest: /tmp/
 
@@ -36,6 +36,8 @@
       certname = puppet.{{inventory_hostname}}.local
       server = {{MASTER_DNS}}
       environment = production
+      [agent]
+      runinterval = 600
   register: conf_updated
 
 - name: restart puppet server
