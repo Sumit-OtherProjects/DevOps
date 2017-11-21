@@ -25,4 +25,4 @@ This module will be included in [site.pp](https://github.ncsu.edu/akshetty/devop
 https://www.youtube.com/watch?v=JAZOt7IV15I
 
 
-## [Report](https://github.ncsu.edu/akshetty/devops_techtalk_puppet/blob/master/Report/PuppetReport.pdf)
+### [Report](https://github.ncsu.edu/akshetty/devops_techtalk_puppet/blob/master/Report/PuppetReport.pdf)
