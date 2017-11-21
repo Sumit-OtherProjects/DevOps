@@ -18,4 +18,4 @@ We have created Puppet module called as [run_checkboxio](https://github.ncsu.edu
 This module will be included in [site.pp](https://github.ncsu.edu/akshetty/devops_techtalk_puppet/blob/master/ansible/roles/master/files/site.pp) and placed inside manifest folder, so that Puppet-Server can make it available for the Puppet-Agents.
 
 
-### [Walkthrough]()
+### [Walkthrough](https://youtu.be/ui0H32n01NU)
