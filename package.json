@@ -15,6 +15,7 @@
     "chai-http": "^2.0.1",
     "mocha": "^3.5.0",
     "request": "^2.54.0",
-    "random-js": "^1.0.8"
+    "random-js": "^1.0.8",
+    "deasync": "^0.1.11"
   }
 }

@@ -9,17 +9,6 @@ var request = require("request");
 app.use(function(req, res, next) 
 {
 	console.log(req.method, req.url);
-	// if (req.url == "/recent" || req.url == "/favicon.ico")
-	// 	next();
-	// else {
-	// 	if (requests.length >= 5) {
-	// 		requests.pop()
-	// 	}
-	// 	requests.unshift(req.method +" "+ req.url);
-	// 	// ... INSERT HERE.
-	
-	// 	next(); // Passing the request to the next handler in the stack.
-	// }
 	next();
 	
 });
@@ -27,10 +16,14 @@ app.use(function(req, res, next)
 
 app.get('/ratings', function(err, res) {
 	res.writeHead(200, {'content-type':'text/html'});
-	res.write("<h3>Ratings Service Working</h3>");
+	res.write('1');
 	res.end();
 })
 
+app.get('/ratings1', function(err, res) {
+	res.writeHead(500, {'content-type':'text/html'});
+	res.end();
+})
 
 // HTTP SERVER
 var server = app.listen(4000, function () {
@@ -40,5 +33,7 @@ var server = app.listen(4000, function () {
 
   console.log('Ratings API Server running at http://%s:%s', host, port)
 })
+
+
 
 exports 

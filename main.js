@@ -14,17 +14,6 @@ rand = new Random(Random.engines.mt19937().seed(0));
 app.use(function(req, res, next) 
 {
 	console.log(req.method, req.url);
-	// if (req.url == "/recent" || req.url == "/favicon.ico")
-	// 	next();
-	// else {
-	// 	if (requests.length >= 5) {
-	// 		requests.pop()
-	// 	}
-	// 	requests.unshift(req.method +" "+ req.url);
-	// 	// ... INSERT HERE.
-	
-	// 	next(); // Passing the request to the next handler in the stack.
-	// }
 	next();
 	
 });
@@ -37,12 +26,12 @@ app.get('/api', function(err, res) {
 
 	request(options, function(err,res2,body){
 		if(!res2 || res2.statusCode == 500){
-			res.status(500).send(res2.body);
+			res.status(500).send("API: Ratings is Down");
+			res.end();
 		}
 		else {
 			res.writeHead(200, {'content-type':'text/html'});
-			res.write(res2.body);
-			res.write("Processing Thru /API")
+			res.write("API: Ratings is Up");
 			res.end();
 		}
 	});
@@ -55,22 +44,36 @@ app.get('/apicontrol', function(err, res) {
 
 	request(options, function(err,res2,body){
 		if(!res2 || res2.statusCode == 500){
-			res.status(500).send(res2.body);
+			res.status(500).send("APICONTROL: Ratings is Down");
+			res.end();
 		}
 		else {
 			res.writeHead(200, {'content-type':'text/html'});
-			res.write(res2.body);
-			res.write("Processing Thru /APICONTROL")
+			res.write("APICONTROL: Ratings is Up");
 			res.end();
 		}
 	});
 });
 
 app.get('/apiexperiment', function(err, res) {
-	res.writeHead(500, {'content-type':'text/html'});
-	res.write("Ratings Service is Down <br/>");
-	res.write("Processing thru API Experiment");
-	res.end();
+	if (rand.bool(0.5)) {
+		res.writeHead(500, {'content-type':'text/html'});
+		res.write("APIEXP: Ratings is Down");
+		res.end();	
+	}
+	else {
+		var options = {
+			uri: "http://localhost:4000/ratings1"
+		};
+
+		request(options, function(err,res2,body){
+			res.writeHead(200, {'content-type':'text/html'});
+			res.write(res.body);
+			res.end();
+		});
+	}
+
+	
 });
 
 app.get('/gateway', function(req, res) {
@@ -105,5 +108,8 @@ var server = app.listen(3000, function () {
 
   console.log('Example app listening at http://%s:%s', host, port)
 })
+
+
+
 
 exports 
