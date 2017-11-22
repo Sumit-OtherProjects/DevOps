@@ -1,0 +1,34 @@
+---
+- hosts: masters
+  gather_facts: False
+  become: True
+  pre_tasks:
+    - name: install python 2
+      raw: test -e /usr/bin/python || (sudo apt -y update && sudo apt install -y python-minimal)
+      changed_when: False
+    - setup:
+  vars:
+    MASTER_DNS: "puppet.master.local"
+  roles:
+    - role: master
+
+- hosts: agents
+  gather_facts: False
+  become: True
+  pre_tasks:
+    - name: install python 2
+      raw: test -e /usr/bin/python || (sudo apt -y update && sudo apt install -y python-minimal)
+      changed_when: False
+    - setup:
+  vars:
+    MASTER_DNS: "puppet.master.local"
+    MASTER_IP: "192.168.33.10"
+  roles:
+    - role: agent
+
+- hosts: masters
+  gather_facts: False
+  become: True
+  roles:
+    - role: linking
+...

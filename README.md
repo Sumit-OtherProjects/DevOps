@@ -4,3 +4,4 @@ This repository contains homeworks, project and workshop related material for th
 - [Homeworks](./Homeworks)
 - [Project](./Project)
 - [Workshops](./Workshops)
+- [TechTalk](./TechTalk)

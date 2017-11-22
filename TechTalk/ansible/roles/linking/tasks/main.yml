@@ -1,0 +1,9 @@
+---
+- name: Accept certificates in server from client
+  shell: /opt/puppetlabs/bin/puppet cert sign --all
+  become: yes
+  ignore_errors: True
+  register: cert_sign
+
+- debug:
+    var: cert_sign
