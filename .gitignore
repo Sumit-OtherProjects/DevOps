@@ -67,3 +67,18 @@ typings/
 # dotenv environment variables file
 .env
 
+*.key
+*.pem
+*.retry
+
+ssh_keys/
+*.log
+.DS_Store
+
+checkbox_inventory
+iTrust_inventory
+nomad_inventory
+
+host_vars/jenkins.yml
+
+aws_stuff

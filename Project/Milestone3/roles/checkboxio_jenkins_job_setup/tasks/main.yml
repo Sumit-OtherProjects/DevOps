@@ -1,0 +1,39 @@
+---
+- name: Add ansible repository
+  apt_repository:
+    repo: 'ppa:ansible/ansible'
+    state: present
+    update_cache: yes
+
+- name: Installing other required packages
+  apt:
+    pkg: "{{ item }}"
+    state: present
+  with_items:
+    - git
+    - git-core
+    - python-software-properties
+    - ansible
+    - python-pip
+
+- name: Install pip packages
+  pip:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - python-jenkins
+    - lxml
+
+- name: Create checkboxio job
+  jenkins_job:
+    name: checkbox-packaging-job
+    config: "{{ lookup('template','checkboxio.xml.j2') }}"
+    url: http://localhost:8080
+    user: "{{ username }}"
+    password: "{{ jenkinspassword }}"
+    state: present
+
+- name: Get playbook for post build ansible scripts
+  include_role:
+    name: clone_playbook
+...
