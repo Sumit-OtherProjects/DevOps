@@ -1,3 +1,5 @@
+# Homework 4 - Report
+
 ## Purpose of Chaos Experiment
 
 The objective is to test how an application (or a particular service) - in this case /api performs if another service (/ratings) on which this /api depends, fails. <br />
@@ -81,8 +83,7 @@ Overall 80% of the requests are still handled by /api<br />
 and 10% are handled by api control which is using "up" ratings service, so is always sucessful<br />
 
 
-## Experiences and Issues Faced:
+## Experiences:
 - Simluating "not being able to handle ratings down gracefully" was a bit tricky without actually killing the server. <br />
 - In a real scenario, apicontrol would useful in determining whether apiexperiment is at par with it or not. Because in a "real scenario" we won't really be using http error codes to analyse the experiment results, we would be using real time user based metrics like up time per user etc, to determine the "effects" of this experiment.<br />
 	- In this homework, /apicontrol doesn't play much part as we don't have such metrics and we directly use the logs/messages to determine the paths and status of each request.<br />
-
