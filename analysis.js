@@ -5,7 +5,7 @@ var request = require("request");
 
 var api_logs = {'T': 0, 'F': 0};
 var apicontrol_logs = {'T': 0, 'F': 0};
-var apiexp_logs = {'T': 0, 'F': 0};
+var apiexp_logs = {'T': 0, 'F': 0, 'N': 0};
 
 function sleep(milliseconds) {
   var start = new Date().getTime();
@@ -57,7 +57,10 @@ for (var e = 0; e < MAX_REQUESTS; e++) {
 		}
 		else {
 			console.log("API Service can not handle ratings going down");
-			flag = 1;
+			if (res2.body.includes('APIEXP')) {
+				apiexp_logs['N'] += 1;
+			}
+			// flag = 1;
 		}
 		counter += 1;
 	});
@@ -86,6 +89,7 @@ console.log("Gracefully Handled: ", apicontrol_logs['F']);
 
 
 console.log("-------- For API EXPERIMENT -------------");
-console.log("Handled: ", apiexp_logs['T'] + apiexp_logs['F']);
+console.log("Handled: ", apiexp_logs['T'] + apiexp_logs['F'] + apiexp_logs['N']);
 console.log("Successful: ", apiexp_logs['T']);
 console.log("Gracefully Handled: ", apiexp_logs['F']);
+console.log("Gracefully Not Handled: ", apiexp_logs['N']);
