@@ -1,8 +1,10 @@
-var express = require('express')
-var fs      = require('fs')
-var app = express()
+var express = require('express');
+var fs      = require('fs');
+var app = express();
+var httpProxy = require('http-proxy');
 var Random = require('random-js')
 var request = require("request");
+
 
 ///////////// WEB ROUTES
 
@@ -30,7 +32,7 @@ app.use(function(req, res, next)
 
 app.get('/api', function(err, res) {
 	var options = {
-		uri: "http://localhost:3000/ratings"
+		uri: "http://localhost:4000/ratings"
 	};
 
 	request(options, function(err,res2,body){
@@ -48,7 +50,7 @@ app.get('/api', function(err, res) {
 
 app.get('/apicontrol', function(err, res) {
 	var options = {
-		uri: "http://localhost:3000/ratings"
+		uri: "http://localhost:4000/ratings"
 	};
 
 	request(options, function(err,res2,body){
@@ -71,15 +73,9 @@ app.get('/apiexperiment', function(err, res) {
 	res.end();
 });
 
-app.get('/ratings', function(err, res) {
-	res.writeHead(200, {'content-type':'text/html'});
-	res.write("<h3>Ratings Service Working</h3>");
-	res.end();
-})
-
-app.get('/gateway', function(err, res) {
+app.get('/gateway', function(req, res) {
 	var options;
-	if (rand.bool(0.50)){
+	if (rand.bool(0.80)){
 		options = {
 			uri: "http://localhost:3000/api"
 		};
@@ -97,14 +93,8 @@ app.get('/gateway', function(err, res) {
 		}
 	}
 
-	request(options, function(err,res2,body){
-		if(!res2 || res2.statusCode == 500){
-			res.status(500).send(res2.body);
-		}
-		else {
-			res.status(200).send(res2.body);
-		}
-	});
+	res.redirect(options.uri); 
+
 })
 
 // HTTP SERVER
