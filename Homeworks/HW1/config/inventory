@@ -1,2 +1,0 @@
-[nodes]
-192.168.xx.xx ansible_ssh_user=ubuntu ansible_ssh_pass=change-me

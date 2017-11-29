@@ -1,2 +1,0 @@
-mongodb_password: "{{ vault_mongodb_password }}"
-mail_password: "{{ vault_mail_password }}"
