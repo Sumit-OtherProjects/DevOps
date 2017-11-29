@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-# DevOps
-This repository contains homeworks, project and workshop related material for the DevOps Course (Fall 2017)
-
-- [Homeworks](./Homeworks)
-- [Project](./Project)
-- [Workshops](./Workshops)
-- [TechTalk](./TechTalk)
-=======
 # HW4-DevOps
 CSC 519: DevOps Fall 2017 HW 4
 
@@ -38,4 +29,3 @@ The third express server implements /ratings service. Runs on port 4000.<br />
 it has two routes. /ratings and /ratings1<br />
 /ratings always returns with 200 success code<br />
 /ratings1 always returns with 500 error code<br />
->>>>>>> hw4/master
