@@ -1,6 +1,7 @@
 # Project
 
-(Description: To be added)
+## Video Presentation
+<iframe width="560" height="315" src="https://www.youtube.com/embed/aOJMs5LhJCU" frameborder="0" allowfullscreen></iframe>
 
 - [Milestone 1](Milestone1)
 - [Milestone 2](Milestone2)
