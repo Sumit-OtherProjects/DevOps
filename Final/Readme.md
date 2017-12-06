@@ -21,10 +21,10 @@
 ## [Infrastructure Management](./IM.md)
 
 ## Deployment
-### [Pipeline](./Pipeline.md)
-### [Strategies](./DeploymentStrategies)
-### [Feature Flags and Toggles](./Toggles.md)
-### [Docker, VM](./DockerVM.md)
+- [Pipeline](./Pipeline.md)
+- [Strategies](./DeploymentStrategies)
+- [Feature Flags and Toggles](./Toggles.md)
+- [Docker, VM](./DockerVM.md)
 
 ## [Monitoring](./Monitoring)
 
