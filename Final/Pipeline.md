@@ -1,5 +1,5 @@
 ## Deployment Pipeline
-[pipline](./img/pipeline.png)
+![pipline](./img/pipeline.png)
 
 
 ## Other Popular Theories/Concepts
