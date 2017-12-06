@@ -22,7 +22,7 @@
 
 ## Deployment
 - [Pipeline](./Pipeline.md)
-- [Strategies](./DeploymentStrategies)
+- [Strategies](./DeploymentStrategies.md)
 - [Feature Flags and Toggles](./Toggles.md)
 - [Docker, VM](./DockerVM.md)
 
